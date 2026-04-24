@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Election Process Explained</title>
+    <meta
+      name="description"
+      content="A bilingual, elder-friendly election explainer with a smart assistant, voice support, practice ballot, quiz, and FAQ."
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="topbar panel">
+      <div class="brand-block">
+        <p class="eyebrow" id="brandEyebrow"></p>
+        <h1 class="brand-title" id="brandTitle"></h1>
+        <p class="brand-subtitle" id="brandSubtitle"></p>
+      </div>
+
+      <div class="control-grid" aria-label="Accessibility and language controls">
+        <section class="control-card">
+          <span class="control-label" id="languageLabel"></span>
+          <div class="toggle-row">
+            <button id="langEnBtn" type="button" class="toggle-btn"></button>
+            <button id="langHiBtn" type="button" class="toggle-btn"></button>
+          </div>
+        </section>
+
+        <section class="control-card">
+          <span class="control-label" id="textSizeLabel"></span>
+          <div class="toggle-row">
+            <button id="decreaseTextBtn" type="button" class="toggle-btn"></button>
+            <button id="increaseTextBtn" type="button" class="toggle-btn"></button>
+          </div>
+        </section>
+
+        <section class="control-card">
+          <span class="control-label" id="contrastLabel"></span>
+          <div class="toggle-row">
+            <button id="contrastToggleBtn" type="button" class="toggle-btn toggle-btn-wide"></button>
+          </div>
+        </section>
+
+        <section class="control-card">
+          <span class="control-label" id="voiceLabel"></span>
+          <div class="toggle-row">
+            <button id="stopAudioBtn" type="button" class="toggle-btn toggle-btn-wide"></button>
+          </div>
+        </section>
+      </div>
+
+      <div class="status-strip" aria-live="polite">
+        <span class="status-pill" id="currentStepBadge"></span>
+        <span class="status-pill" id="voiceStatusBadge"></span>
+      </div>
+      <p class="status-message" id="globalStatus"></p>
+    </header>
+
+    <main id="main-content" class="page-shell">
+      <section class="hero panel" id="hero">
+        <div class="hero-copy">
+          <p class="eyebrow" id="heroEyebrow"></p>
+          <h2 class="hero-title" id="heroTitle"></h2>
+          <p class="hero-text" id="heroIntro"></p>
+        </div>
+
+        <div class="hero-actions">
+          <button id="startLearningBtn" type="button" class="primary-btn"></button>
+          <button id="viewTimelineBtn" type="button" class="secondary-btn"></button>
+          <button id="listenHeroBtn" type="button" class="listen-btn"></button>
+        </div>
+      </section>
+
+      <section class="panel" id="assistant">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" id="assistantEyebrow"></p>
+            <h2 class="section-title" id="assistantTitle"></h2>
+            <p class="section-text" id="assistantIntro"></p>
+          </div>
+          <button id="listenAssistantBtn" type="button" class="listen-btn section-listen"></button>
+        </div>
+
+        <div class="assistant-grid">
+          <section class="assistant-form panel-soft">
+            <p class="persona-chip" id="assistantPersona"></p>
+
+            <label class="field">
+              <span id="assistantConcernLabel"></span>
+              <select id="assistantConcern"></select>
+            </label>
+
+            <label class="field">
+              <span id="assistantSupportLabel"></span>
+              <select id="assistantSupportNeed"></select>
+            </label>
+
+            <label class="field field-full">
+              <span id="assistantQuestionLabel"></span>
+              <textarea
+                id="assistantQuestion"
+                rows="4"
+                maxlength="400"
+                placeholder=""
+              ></textarea>
+            </label>
+
+            <button id="assistantAskBtn" type="button" class="primary-btn"></button>
+          </section>
+
+          <section class="assistant-response panel-soft" aria-live="polite">
+            <div class="assistant-meta">
+              <span class="status-pill" id="assistantSourceBadge"></span>
+              <span class="status-pill" id="assistantModeBadge"></span>
+            </div>
+
+            <h3 class="assistant-subtitle" id="assistantSummaryTitle"></h3>
+            <p class="section-text assistant-summary" id="assistantSummary"></p>
+
+            <h4 class="assistant-subtitle" id="assistantActionsTitle"></h4>
+            <ul class="assistant-actions" id="assistantActions"></ul>
+
+            <p class="assistant-support-line">
+              <strong id="assistantReassuranceLabel"></strong>
+              <span id="assistantReassurance"></span>
+            </p>
+
+            <p class="assistant-support-line">
+              <strong id="assistantNextStepLabel"></strong>
+              <span id="assistantNextStep"></span>
+            </p>
+
+            <p class="section-note" id="assistantWhyThisHelp"></p>
+          </section>
+        </div>
+      </section>
+
+      <section class="panel" id="guide">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" id="guideEyebrow"></p>
+            <h2 class="section-title" id="guideTitle"></h2>
+            <p class="section-text" id="guideIntro"></p>
+          </div>
+          <button id="listenGuideBtn" type="button" class="listen-btn section-listen"></button>
+        </div>
+
+        <div class="step-rail" id="stepRail" aria-label="Election steps"></div>
+        <article class="step-card" id="currentStepCard"></article>
+
+        <div class="action-row">
+          <button id="prevStepBtn" type="button" class="secondary-btn step-nav"></button>
+          <button id="nextStepBtn" type="button" class="primary-btn step-nav"></button>
+        </div>
+      </section>
+
+      <section class="panel" id="timeline">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" id="timelineEyebrow"></p>
+            <h2 class="section-title" id="timelineTitle"></h2>
+            <p class="section-text" id="timelineIntro"></p>
+          </div>
+          <button id="listenTimelineBtn" type="button" class="listen-btn section-listen"></button>
+        </div>
+
+        <div class="timeline-grid" id="timelineList"></div>
+      </section>
+
+      <section class="panel" id="guidance">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" id="guidanceEyebrow"></p>
+            <h2 class="section-title" id="guidanceTitle"></h2>
+            <p class="section-text" id="guidanceIntro"></p>
+          </div>
+          <button id="listenGuidanceBtn" type="button" class="listen-btn section-listen"></button>
+        </div>
+
+        <div class="guidance-grid" id="guidanceGrid"></div>
+        <p class="section-note" id="guidanceNote"></p>
+      </section>
+
+      <section class="panel" id="practice">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" id="practiceEyebrow"></p>
+            <h2 class="section-title" id="practiceTitle"></h2>
+            <p class="section-text" id="practiceIntro"></p>
+          </div>
+          <button id="listenPracticeBtn" type="button" class="listen-btn section-listen"></button>
+        </div>
+
+        <p class="practice-note" id="practiceNote"></p>
+        <div class="ballot-grid" id="ballotList"></div>
+
+        <div class="action-row">
+          <button id="submitVoteBtn" type="button" class="primary-btn"></button>
+          <button id="resetVoteBtn" type="button" class="secondary-btn"></button>
+        </div>
+
+        <p class="status-message practice-status" id="practiceStatus" aria-live="polite"></p>
+      </section>
+
+      <section class="panel" id="quiz">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" id="quizEyebrow"></p>
+            <h2 class="section-title" id="quizTitle"></h2>
+            <p class="section-text" id="quizIntro"></p>
+          </div>
+          <button id="listenQuizBtn" type="button" class="listen-btn section-listen"></button>
+        </div>
+
+        <div class="quiz-list" id="quizList"></div>
+      </section>
+
+      <section class="panel" id="faq">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow" id="faqEyebrow"></p>
+            <h2 class="section-title" id="faqTitle"></h2>
+            <p class="section-text" id="faqIntro"></p>
+          </div>
+          <button id="listenFaqBtn" type="button" class="listen-btn section-listen"></button>
+        </div>
+
+        <div class="faq-list" id="faqList"></div>
+      </section>
+    </main>
+
+    <script src="script.js"></script>
+  </body>
+</html>
