@@ -1,6 +1,6 @@
 # Election Process Guide
 
-This folder contains a standalone, elder-friendly election explainer designed for the **older voter** persona. It now includes a **smart assistant** that uses local decision rules by default and can optionally use **Google Gemini** from a secure backend when the server is running.
+This folder contains a standalone, elder-friendly election explainer designed for the **older voter** persona. It now includes a **smart assistant** that uses local decision rules by default and can optionally use **Google Gemini** plus **Google Cloud Text-to-Speech** from a secure backend when the server is running.
 
 ## What is included
 
@@ -20,6 +20,7 @@ This folder contains a standalone, elder-friendly election explainer designed fo
   - quiz progress
   - practice ballot progress
   - optional user question
+- Optional Google Cloud Text-to-Speech audio for clearer elder-friendly playback
 
 ## Quick demo options
 
@@ -31,7 +32,7 @@ This keeps the guide fully usable with the **local smart assistant** but does no
 
 ### 2. Full challenge-ready mode
 
-Run the local FastAPI server so the UI, validation, and optional Gemini integration are available together.
+Run the local FastAPI server so the UI, validation, and optional Google integrations are available together.
 
 ```powershell
 cd election-process-guide
@@ -45,13 +46,24 @@ Then open:
 
 `http://127.0.0.1:8001`
 
-## Gemini setup
+## Google services setup
 
 1. Copy `.env.example` to `.env`.
-2. Set `GEMINI_API_KEY=...`.
-3. Start the server with the environment loaded.
+2. Set `GEMINI_API_KEY=...` for personalized assistant guidance.
+3. To enable Google Cloud voice, set:
+   - `GOOGLE_TTS_ENABLED=true`
+   - `GOOGLE_SERVICE_ACCOUNT_JSON=...`
+4. Start the server with the environment loaded.
 
-When a key is present, the assistant still uses the same safe rule engine for logic, but **Google Gemini** adds a more natural personalized summary and reassurance.
+When configured:
+
+- **Google Gemini** adds a more natural personalized summary and reassurance.
+- **Google Cloud Text-to-Speech** provides clearer server-generated audio playback for older users who benefit from slower, more consistent voice output.
+
+If those services are not configured, the project still works safely with:
+
+- local assistant rules
+- browser speech synthesis fallback
 
 ## Tests
 
@@ -63,7 +75,7 @@ python -m pytest tests -v
 ## Challenge notes
 
 - Persona/vertical: **older voter**
-- Google service: **Gemini**
+- Google services: **Gemini** and **Google Cloud Text-to-Speech**
 - Safety: secrets remain server-side and requests are validated
 - Maintainability: backend logic is split into small files under [`server`](./server)
 

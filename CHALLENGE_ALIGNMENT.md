@@ -13,6 +13,7 @@ This standalone project is designed around one clear persona: **older voters who
   - optional personal question
 - The frontend always has a **local rule-based assistant** for offline demos.
 - The backend can enhance the same guidance with **Google Gemini** when `GEMINI_API_KEY` is configured.
+- The audio flow can use **Google Cloud Text-to-Speech** for more accessible spoken guidance when configured.
 
 ## Logical decision making
 
@@ -23,8 +24,9 @@ This standalone project is designed around one clear persona: **older voters who
 ## Google Services
 
 - **Google Gemini** is used server-side only for personalized, natural-language summaries and reassurance.
+- **Google Cloud Text-to-Speech** is used server-side only for clearer elder-friendly audio playback.
 - API keys never reach the browser.
-- The project still works without Gemini, which keeps demos reliable and resource-efficient.
+- The project still works without Google services, which keeps demos reliable and resource-efficient.
 
 ## Practical usability
 
@@ -52,3 +54,4 @@ This standalone project is designed around one clear persona: **older voters who
 
 - Local rules handle most updates instantly.
 - Gemini is used only when the user explicitly asks for refreshed personal guidance from the running server.
+- Google Cloud voice is used only when the user asks to listen and the service is configured; otherwise browser audio is used.

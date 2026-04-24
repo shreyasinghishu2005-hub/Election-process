@@ -20,6 +20,10 @@ const copy = {
   stopAudio: localized("Stop audio", "ऑडियो बंद करें"),
   voiceReady: localized("Voice support ready", "आवाज सहायता तैयार है"),
   voicePlaying: localized("Audio is playing", "ऑडियो चल रहा है"),
+  voiceReadyGoogle: localized("Google voice ready", "Google आवाज तैयार"),
+  voicePlayingGoogle: localized("Google voice playing", "Google आवाज चल रही है"),
+  voiceReadyBrowser: localized("Browser voice ready", "ब्राउज़र आवाज तैयार"),
+  voicePlayingBrowser: localized("Browser voice playing", "ब्राउज़र आवाज चल रही है"),
   heroEyebrow: localized("Easy guide for all ages", "हर उम्र के लिए आसान गाइड"),
   heroTitle: localized(
     "Learn how an election works, one step at a time.",
@@ -40,8 +44,8 @@ const copy = {
     "वरिष्ठ मतदाता के लिए व्यक्तिगत मदद पाएं"
   ),
   assistantIntro: localized(
-    "This assistant changes its advice based on the current election step, your concern, accessibility need, practice progress, and optional question. It works offline with local rules and can use Google Gemini when the secure server is running.",
-    "यह सहायक वर्तमान चुनाव चरण, आपकी चिंता, सहायता की जरूरत, अभ्यास प्रगति और वैकल्पिक प्रश्न के आधार पर सलाह बदलता है। यह स्थानीय नियमों के साथ ऑफलाइन भी काम करता है और सुरक्षित सर्वर चलने पर Google Gemini का उपयोग कर सकता है।"
+    "This assistant changes its advice based on the current election step, your concern, accessibility need, practice progress, and optional question. It works offline with local rules and can use Google Gemini plus Google Cloud Text-to-Speech when the secure server is running.",
+    "यह सहायक वर्तमान चुनाव चरण, आपकी चिंता, सहायता की जरूरत, अभ्यास प्रगति और वैकल्पिक प्रश्न के आधार पर सलाह बदलता है। यह स्थानीय नियमों के साथ ऑफलाइन भी काम करता है और सुरक्षित सर्वर चलने पर Google Gemini और Google Cloud Text-to-Speech का उपयोग कर सकता है।"
   ),
   assistantPersona: localized("Chosen persona: Older voter", "चुना गया व्यक्तित्व: वरिष्ठ मतदाता"),
   assistantConcernLabel: localized("What do you need help with?", "आपको किस बात में मदद चाहिए?"),
@@ -123,7 +127,13 @@ const copy = {
     "यह ब्राउज़र टेक्स्ट को आवाज में पढ़ने का समर्थन नहीं करता।"
   ),
   speechStarted: localized("Reading aloud started.", "आवाज में पढ़ना शुरू हुआ।"),
+  speechStartedGoogle: localized("Google voice playback started.", "Google आवाज चलना शुरू हुआ।"),
+  speechStartedBrowser: localized("Browser voice playback started.", "ब्राउज़र आवाज चलना शुरू हुआ।"),
   speechStopped: localized("Audio stopped.", "ऑडियो बंद हुआ।"),
+  speechFallbackBrowser: localized(
+    "Google voice was not available, so browser voice was used instead.",
+    "Google आवाज उपलब्ध नहीं थी, इसलिए ब्राउज़र आवाज का उपयोग किया गया।"
+  ),
   languageChanged: localized("Language changed.", "भाषा बदल गई है।"),
   textSmaller: localized("Text size decreased.", "अक्षर आकार छोटा किया गया।"),
   textLarger: localized("Text size increased.", "अक्षर आकार बड़ा किया गया।"),
@@ -346,6 +356,10 @@ const state = {
   voteSubmitted: false,
   quizSelections: {},
   isSpeaking: false,
+  audioAvailability: "browser",
+  speakingSource: null,
+  remoteAudio: null,
+  remoteAudioUrl: null,
   assistantAvailability: "local",
   assistantConcern: "registration",
   assistantSupportNeed: "none",
@@ -467,6 +481,14 @@ function currentAssistantModeLabel() {
   if (state.assistantAvailability === "gemini") return t(copy.assistantModeGemini);
   if (state.assistantAvailability === "fallback") return t(copy.assistantModeFallback);
   return t(copy.assistantModeLocal);
+}
+
+function currentVoiceStatusLabel() {
+  const activeSource = state.isSpeaking ? state.speakingSource : (state.audioAvailability === "google" ? "google" : "browser");
+  if (activeSource === "google") {
+    return state.isSpeaking ? t(copy.voicePlayingGoogle) : t(copy.voiceReadyGoogle);
+  }
+  return state.isSpeaking ? t(copy.voicePlayingBrowser) : t(copy.voiceReadyBrowser);
 }
 
 function currentAssistantSourceLabel() {
@@ -621,7 +643,9 @@ function updateLocalAssistant() {
 async function loadAssistantAvailability() {
   if (!window.location.protocol.startsWith("http")) {
     state.assistantAvailability = "local";
+    state.audioAvailability = "browser";
     renderAssistant();
+    renderStatus();
     return;
   }
 
@@ -630,10 +654,13 @@ async function loadAssistantAvailability() {
     if (!response.ok) throw new Error("config fetch failed");
     const data = await response.json();
     state.assistantAvailability = data.assistant === "gemini" ? "gemini" : "fallback";
+    state.audioAvailability = data.audio === "google" ? "google" : "browser";
   } catch {
     state.assistantAvailability = "local";
+    state.audioAvailability = "browser";
   }
   renderAssistant();
+  renderStatus();
 }
 
 async function requestAssistantGuidance() {
@@ -685,13 +712,80 @@ async function requestAssistantGuidance() {
   }
 }
 
-function speakText(text) {
+async function playRemoteAudio(text) {
+  try {
+    const response = await fetch("/api/audio/speak", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        language: state.language,
+        text,
+      }),
+    });
+    if (!response.ok) {
+      throw new Error("remote audio unavailable");
+    }
+
+    const blob = await response.blob();
+    const audioUrl = URL.createObjectURL(blob);
+    const audio = new Audio(audioUrl);
+
+    state.remoteAudio = audio;
+    state.remoteAudioUrl = audioUrl;
+    state.speakingSource = "google";
+
+    audio.onplay = () => {
+      state.isSpeaking = true;
+      renderStatus();
+      announce(t(copy.speechStartedGoogle));
+    };
+
+    audio.onended = () => {
+      if (state.remoteAudioUrl) {
+        URL.revokeObjectURL(state.remoteAudioUrl);
+      }
+      state.remoteAudio = null;
+      state.remoteAudioUrl = null;
+      state.isSpeaking = false;
+      state.speakingSource = null;
+      renderStatus();
+      announce(t(copy.speechStopped));
+    };
+
+    audio.onerror = () => {
+      if (state.remoteAudioUrl) {
+        URL.revokeObjectURL(state.remoteAudioUrl);
+      }
+      state.remoteAudio = null;
+      state.remoteAudioUrl = null;
+      state.isSpeaking = false;
+      state.speakingSource = null;
+      renderStatus();
+    };
+
+    await audio.play();
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function speakText(text) {
+  stopSpeaking(false);
+
+  if (window.location.protocol.startsWith("http") && state.audioAvailability === "google") {
+    const playedRemotely = await playRemoteAudio(text);
+    if (playedRemotely) {
+      return;
+    }
+    announce(t(copy.speechFallbackBrowser));
+  }
+
   if (!("speechSynthesis" in window) || typeof window.SpeechSynthesisUtterance !== "function") {
     announce(t(copy.speechUnavailable));
     return;
   }
 
-  window.speechSynthesis.cancel();
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = state.language === "hi" ? "hi-IN" : "en-IN";
   utterance.rate = 0.88;
@@ -706,18 +800,21 @@ function speakText(text) {
 
   utterance.onstart = () => {
     state.isSpeaking = true;
+    state.speakingSource = "browser";
     renderStatus();
-    announce(t(copy.speechStarted));
+    announce(t(copy.speechStartedBrowser));
   };
 
   utterance.onend = () => {
     state.isSpeaking = false;
+    state.speakingSource = null;
     renderStatus();
     announce(t(copy.speechStopped));
   };
 
   utterance.onerror = () => {
     state.isSpeaking = false;
+    state.speakingSource = null;
     renderStatus();
     announce(t(copy.speechUnavailable));
   };
@@ -729,7 +826,16 @@ function stopSpeaking(shouldAnnounce = true) {
   if ("speechSynthesis" in window) {
     window.speechSynthesis.cancel();
   }
+  if (state.remoteAudio) {
+    state.remoteAudio.pause();
+  }
+  if (state.remoteAudioUrl) {
+    URL.revokeObjectURL(state.remoteAudioUrl);
+  }
+  state.remoteAudio = null;
+  state.remoteAudioUrl = null;
   state.isSpeaking = false;
+  state.speakingSource = null;
   renderStatus();
   if (shouldAnnounce) {
     announce(t(copy.speechStopped));
@@ -738,7 +844,7 @@ function stopSpeaking(shouldAnnounce = true) {
 
 function renderStatus() {
   elements.currentStepBadge.textContent = `${t(copy.stepCounter)} ${state.currentStepIndex + 1} ${t(copy.of)} ${steps.length}`;
-  elements.voiceStatusBadge.textContent = state.isSpeaking ? t(copy.voicePlaying) : t(copy.voiceReady);
+  elements.voiceStatusBadge.textContent = currentVoiceStatusLabel();
 }
 
 function renderStaticText() {

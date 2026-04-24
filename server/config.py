@@ -10,6 +10,18 @@ def gemini_api_key() -> str | None:
     return key or None
 
 
+def google_service_account_json() -> str | None:
+    payload = os.getenv("GOOGLE_SERVICE_ACCOUNT_JSON", "").strip()
+    return payload or None
+
+
+def google_tts_enabled() -> bool:
+    flag = os.getenv("GOOGLE_TTS_ENABLED", "").strip().lower()
+    if flag in {"1", "true", "yes", "on"}:
+        return True
+    return google_service_account_json() is not None
+
+
 def cors_origins() -> list[str]:
     raw = os.getenv(
         "ELECTION_GUIDE_CORS_ORIGINS",

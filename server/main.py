@@ -5,12 +5,12 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Literal
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field
 
-from . import config, gemini_assistant, logic
+from . import config, gemini_assistant, google_audio, logic
 from .data import CONCERN_LABELS, STEP_TITLES, SUPPORT_LABELS
 
 app = FastAPI(title="Election Process Guide API", version="1.0.0")
@@ -39,16 +39,26 @@ class AssistantGuideRequest(BaseModel):
     quiz_correct_count: int = Field(default=0, ge=0, le=3)
 
 
+class SpeakRequest(BaseModel):
+    language: Literal["en", "hi"] = "en"
+    text: str = Field(min_length=1, max_length=1600)
+
+
 @app.get("/api/health")
 def health() -> dict[str, str]:
     return {"status": "ok", "service": "Election Process Guide"}
 
 
 @app.get("/api/config/public")
-def public_config() -> dict[str, str]:
+def public_config() -> dict[str, object]:
     return {
         "assistant": "gemini" if config.gemini_api_key() else "fallback",
+        "audio": "google" if config.google_tts_enabled() else "browser",
         "persona": "older_adult",
+        "google_services": {
+            "gemini": bool(config.gemini_api_key()),
+            "cloud_text_to_speech": config.google_tts_enabled(),
+        },
     }
 
 
@@ -87,6 +97,21 @@ def assistant_guide(body: AssistantGuideRequest) -> dict[str, object]:
         "why_this_help": final_result.why_this_help,
         "source": source,
     }
+
+
+@app.post("/api/audio/speak")
+def speak_audio(body: SpeakRequest) -> Response:
+    audio_bytes, provider = google_audio.synthesize_speech(
+        text=body.text,
+        language=body.language,
+    )
+    if not audio_bytes:
+        raise HTTPException(status_code=503, detail="google_text_to_speech_not_configured")
+    return Response(
+        content=audio_bytes,
+        media_type="audio/mpeg",
+        headers={"X-Audio-Provider": provider, "Cache-Control": "no-store"},
+    )
 
 
 @app.get("/", include_in_schema=False)
