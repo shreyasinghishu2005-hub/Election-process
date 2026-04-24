@@ -3,12 +3,34 @@
 from __future__ import annotations
 
 from dataclasses import replace
+from functools import lru_cache
+import logging
 from typing import Literal
 
 from . import config
 from .logic import GuideResult
 
 Source = Literal["gemini", "fallback"]
+
+logger = logging.getLogger(__name__)
+
+
+@lru_cache(maxsize=1)
+def _gemini_import_error() -> str | None:
+    try:
+        import google.generativeai as genai  # type: ignore[import-untyped]
+    except Exception as exc:  # pragma: no cover - depends on local environment
+        return str(exc)
+    return None
+
+
+def gemini_service_status() -> dict[str, str | bool]:
+    if not config.gemini_api_key():
+        return {"available": False, "reason": "missing_api_key"}
+    import_error = _gemini_import_error()
+    if import_error:
+        return {"available": False, "reason": "library_unavailable"}
+    return {"available": True, "reason": "ready"}
 
 
 def _parse_labeled_lines(text: str) -> tuple[str | None, str | None]:
@@ -33,14 +55,14 @@ def enhance_guidance(
     question: str | None,
     base_result: GuideResult,
 ) -> tuple[GuideResult, Source]:
-    key = config.gemini_api_key()
-    if not key:
+    status = gemini_service_status()
+    if not status["available"]:
         return base_result, "fallback"
 
     try:
         import google.generativeai as genai  # type: ignore[import-untyped]
 
-        genai.configure(api_key=key)
+        genai.configure(api_key=config.gemini_api_key())
         model = genai.GenerativeModel("gemini-1.5-flash")
         language_name = "Hindi" if language == "hi" else "English"
 
@@ -70,5 +92,9 @@ def enhance_guidance(
             raise ValueError("Gemini response missing labeled lines")
 
         return replace(base_result, summary=summary, reassurance=reassurance), "gemini"
-    except Exception:
+    except (ValueError, AttributeError, RuntimeError) as exc:
+        logger.warning("Gemini enhancement fell back to deterministic guidance: %s", exc)
+        return base_result, "fallback"
+    except Exception as exc:  # pragma: no cover - third-party failure path
+        logger.exception("Unexpected Gemini error; using deterministic guidance")
         return base_result, "fallback"

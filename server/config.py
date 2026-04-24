@@ -5,6 +5,13 @@ from __future__ import annotations
 import os
 
 
+TRUE_VALUES = {"1", "true", "yes", "on"}
+
+
+def _env_flag(name: str) -> bool:
+    return os.getenv(name, "").strip().lower() in TRUE_VALUES
+
+
 def gemini_api_key() -> str | None:
     key = os.getenv("GEMINI_API_KEY", "").strip()
     return key or None
@@ -16,10 +23,11 @@ def google_service_account_json() -> str | None:
 
 
 def google_tts_enabled() -> bool:
-    flag = os.getenv("GOOGLE_TTS_ENABLED", "").strip().lower()
-    if flag in {"1", "true", "yes", "on"}:
-        return True
-    return google_service_account_json() is not None
+    return _env_flag("GOOGLE_TTS_ENABLED")
+
+
+def security_headers_enabled() -> bool:
+    return not _env_flag("DISABLE_SECURITY_HEADERS")
 
 
 def cors_origins() -> list[str]:

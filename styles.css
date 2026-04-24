@@ -217,6 +217,17 @@ a:focus-visible {
   transition: transform 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 .toggle-btn {
   background: var(--accent-soft);
   color: var(--accent-strong);
@@ -461,6 +472,11 @@ a:focus-visible {
 .assistant-form,
 .assistant-response {
   height: 100%;
+}
+
+.assistant-response:focus-visible {
+  outline: 3px solid var(--warm);
+  outline-offset: 4px;
 }
 
 .persona-chip {

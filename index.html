@@ -24,8 +24,8 @@
         <section class="control-card">
           <span class="control-label" id="languageLabel"></span>
           <div class="toggle-row">
-            <button id="langEnBtn" type="button" class="toggle-btn"></button>
-            <button id="langHiBtn" type="button" class="toggle-btn"></button>
+            <button id="langEnBtn" type="button" class="toggle-btn" aria-pressed="true"></button>
+            <button id="langHiBtn" type="button" class="toggle-btn" aria-pressed="false"></button>
           </div>
         </section>
 
@@ -40,7 +40,7 @@
         <section class="control-card">
           <span class="control-label" id="contrastLabel"></span>
           <div class="toggle-row">
-            <button id="contrastToggleBtn" type="button" class="toggle-btn toggle-btn-wide"></button>
+            <button id="contrastToggleBtn" type="button" class="toggle-btn toggle-btn-wide" aria-pressed="false"></button>
           </div>
         </section>
 
@@ -56,7 +56,7 @@
         <span class="status-pill" id="currentStepBadge"></span>
         <span class="status-pill" id="voiceStatusBadge"></span>
       </div>
-      <p class="status-message" id="globalStatus"></p>
+      <p class="status-message" id="globalStatus" role="status" aria-live="polite"></p>
     </header>
 
     <main id="main-content" class="page-shell">
@@ -68,7 +68,8 @@
         </div>
 
         <div class="hero-actions">
-          <button id="startLearningBtn" type="button" class="primary-btn"></button>
+          <button id="askAssistantBtn" type="button" class="primary-btn"></button>
+          <button id="startLearningBtn" type="button" class="secondary-btn"></button>
           <button id="viewTimelineBtn" type="button" class="secondary-btn"></button>
           <button id="listenHeroBtn" type="button" class="listen-btn"></button>
         </div>
@@ -108,10 +109,16 @@
               ></textarea>
             </label>
 
-            <button id="assistantAskBtn" type="button" class="primary-btn"></button>
+            <button id="assistantAskBtn" type="button" class="primary-btn" aria-controls="assistantResponse"></button>
           </section>
 
-          <section class="assistant-response panel-soft" aria-live="polite">
+          <section
+            class="assistant-response panel-soft"
+            id="assistantResponse"
+            aria-live="polite"
+            aria-busy="false"
+            tabindex="-1"
+          >
             <div class="assistant-meta">
               <span class="status-pill" id="assistantSourceBadge"></span>
               <span class="status-pill" id="assistantModeBadge"></span>

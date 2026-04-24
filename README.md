@@ -1,6 +1,6 @@
 # Election Process Guide
 
-This folder contains a standalone, elder-friendly election explainer designed for the **older voter** persona. It now includes a **smart assistant** that uses local decision rules by default and can optionally use **Google Gemini** plus **Google Cloud Text-to-Speech** from a secure backend when the server is running.
+This folder contains a standalone, elder-friendly election explainer designed for the **older voter** persona. The main experience is a **smart election assistant** that helps people understand the election process, timeline, and next steps in a calm, interactive way. It includes an offline quick preview in the browser and a secure backend that can optionally use **Google Gemini** plus **Google Cloud Text-to-Speech** when the server is running.
 
 ## What is included
 
@@ -20,7 +20,12 @@ This folder contains a standalone, elder-friendly election explainer designed fo
   - quiz progress
   - practice ballot progress
   - optional user question
+- Assistant-first homepage flow with a direct jump into personal guidance
+- Honest Google service status reporting so the UI only advertises Gemini or Google voice when they are actually ready
 - Optional Google Cloud Text-to-Speech audio for clearer elder-friendly playback
+- Security headers on all app responses, including stricter browser isolation and HTTPS-aware transport protection
+- Reduced-motion support and keyboard focus management for the assistant response flow
+- HTTP route tests for validation, security headers, audio behavior, and page serving
 
 ## Quick demo options
 
@@ -28,7 +33,7 @@ This folder contains a standalone, elder-friendly election explainer designed fo
 
 Open [index.html](./index.html) in a browser.
 
-This keeps the guide fully usable with the **local smart assistant** but does not enable server-side Gemini responses.
+This keeps the guide fully usable with the **offline quick preview assistant** but does not enable server-side Gemini responses.
 
 ### 2. Full challenge-ready mode
 
@@ -62,7 +67,7 @@ When configured:
 
 If those services are not configured, the project still works safely with:
 
-- local assistant rules
+- offline assistant preview
 - browser speech synthesis fallback
 
 ## Tests
@@ -76,7 +81,8 @@ python -m pytest tests -v
 
 - Persona/vertical: **older voter**
 - Google services: **Gemini** and **Google Cloud Text-to-Speech**
-- Safety: secrets remain server-side and requests are validated
-- Maintainability: backend logic is split into small files under [`server`](./server)
+- Safety: secrets remain server-side, responses include security headers, and requests are validated
+- Maintainability: backend logic is split into small files under [`server`](./server), service readiness is centralized, and risky assistant rendering paths now use safe DOM updates
+- Testing: route-level tests cover config, validation, unexpected fields, blank-input rejection, audio fallbacks, HTML serving, HTTPS-aware headers, and security headers
 
 See [CHALLENGE_ALIGNMENT.md](./CHALLENGE_ALIGNMENT.md) for a direct rubric mapping.

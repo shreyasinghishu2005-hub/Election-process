@@ -13,6 +13,8 @@ const copy = {
   textSizeLabel: localized("Text size", "अक्षर आकार"),
   decreaseText: localized("A-", "A-"),
   increaseText: localized("A+", "A+"),
+  decreaseTextAria: localized("Decrease text size", "टेक्स्ट छोटा करें"),
+  increaseTextAria: localized("Increase text size", "टेक्स्ट बड़ा करें"),
   contrastLabel: localized("Contrast", "कॉन्ट्रास्ट"),
   contrastOn: localized("High contrast", "हाई कॉन्ट्रास्ट"),
   contrastOff: localized("Standard view", "सामान्य दृश्य"),
@@ -44,7 +46,7 @@ const copy = {
     "वरिष्ठ मतदाता के लिए व्यक्तिगत मदद पाएं"
   ),
   assistantIntro: localized(
-    "This assistant changes its advice based on the current election step, your concern, accessibility need, practice progress, and optional question. It works offline with local rules and can use Google Gemini plus Google Cloud Text-to-Speech when the secure server is running.",
+    "This assistant changes its advice based on the current election step, your concern, accessibility need, practice progress, and optional question. It gives a simple offline preview in the browser and can use Google Gemini plus Google Cloud Text-to-Speech when the secure server is running.",
     "यह सहायक वर्तमान चुनाव चरण, आपकी चिंता, सहायता की जरूरत, अभ्यास प्रगति और वैकल्पिक प्रश्न के आधार पर सलाह बदलता है। यह स्थानीय नियमों के साथ ऑफलाइन भी काम करता है और सुरक्षित सर्वर चलने पर Google Gemini और Google Cloud Text-to-Speech का उपयोग कर सकता है।"
   ),
   assistantPersona: localized("Chosen persona: Older voter", "चुना गया व्यक्तित्व: वरिष्ठ मतदाता"),
@@ -61,12 +63,16 @@ const copy = {
   assistantActionsTitle: localized("Recommended actions", "सुझाए गए कदम"),
   assistantReassuranceLabel: localized("Reassurance:", "हौसला:"),
   assistantNextStepLabel: localized("Next:", "अगला:"),
-  assistantModeLocal: localized("Offline browser mode", "ऑफलाइन ब्राउज़र मोड"),
+  assistantModeLocal: localized("Offline preview mode", "ऑफलाइन प्रीव्यू मोड"),
   assistantModeFallback: localized("Server rules ready", "सर्वर नियम तैयार"),
   assistantModeGemini: localized("Google Gemini ready", "Google Gemini तैयार"),
-  assistantSourceLocal: localized("Source: local smart rules", "स्रोत: स्थानीय स्मार्ट नियम"),
+  assistantSourceLocal: localized("Source: offline quick preview", "स्रोत: ऑफलाइन त्वरित प्रीव्यू"),
   assistantSourceFallback: localized("Source: secure server fallback", "स्रोत: सुरक्षित सर्वर फॉलबैक"),
   assistantSourceGemini: localized("Source: Google Gemini", "स्रोत: Google Gemini"),
+  assistantPreviewAction: localized(
+    "Press Get Personal Guidance for detailed advice from the secure server.",
+    "विस्तृत सलाह के लिए Get Personal Guidance दबाएँ।"
+  ),
   guideEyebrow: localized("Step-by-step guide", "एक-एक चरण की जानकारी"),
   guideTitle: localized("Follow the election process in order", "चुनाव प्रक्रिया को सही क्रम में समझें"),
   guideIntro: localized(
@@ -392,6 +398,7 @@ const elements = {
   heroTitle: document.getElementById("heroTitle"),
   heroIntro: document.getElementById("heroIntro"),
   startLearningBtn: document.getElementById("startLearningBtn"),
+  askAssistantBtn: document.getElementById("askAssistantBtn"),
   viewTimelineBtn: document.getElementById("viewTimelineBtn"),
   listenHeroBtn: document.getElementById("listenHeroBtn"),
   assistantEyebrow: document.getElementById("assistantEyebrow"),
@@ -406,6 +413,7 @@ const elements = {
   assistantQuestionLabel: document.getElementById("assistantQuestionLabel"),
   assistantQuestion: document.getElementById("assistantQuestion"),
   assistantAskBtn: document.getElementById("assistantAskBtn"),
+  assistantResponse: document.getElementById("assistantResponse"),
   assistantSourceBadge: document.getElementById("assistantSourceBadge"),
   assistantModeBadge: document.getElementById("assistantModeBadge"),
   assistantSummaryTitle: document.getElementById("assistantSummaryTitle"),
@@ -513,7 +521,9 @@ function buildAssistantPayload() {
   };
 }
 
-function buildLocalAssistantResponse(context) {
+function unusedLegacyAssistantResponse(context) {
+  return buildOfflineAssistantPreview(context);
+  /* Legacy body kept temporarily while the preview helper remains the single source of truth.
   const stepTitle = t(steps[context.stepIndex].title);
   const concernLabel = t(assistantConcerns.find((item) => item.id === context.concern).label);
   const supportLabel = t(assistantSupportNeeds.find((item) => item.id === context.supportNeed).label);
@@ -633,11 +643,115 @@ function buildLocalAssistantResponse(context) {
       : `यह सलाह वरिष्ठ मतदाता व्यक्तित्व, वर्तमान चरण (${stepTitle}), आपकी चुनी हुई चिंता (${concernLabel}) और सहायता की जरूरत (${supportLabel}) पर आधारित है।`,
     source: "local",
   };
+  */
+}
+
+function buildOfflineAssistantPreview(context) {
+  const stepTitle = t(steps[context.stepIndex].title);
+  const concernLabel = t(assistantConcerns.find((item) => item.id === context.concern).label);
+  const supportLabel = t(assistantSupportNeeds.find((item) => item.id === context.supportNeed).label);
+  const nextStep = context.stepIndex < steps.length - 1 ? t(steps[context.stepIndex + 1].title) : t(copy.faqTitle);
+
+  let summary = state.language === "en"
+    ? `This quick preview is focused on ${stepTitle}. Your current concern is ${concernLabel}, and the support need is ${supportLabel}.`
+    : `यह त्वरित प्रीव्यू ${stepTitle} पर केंद्रित है। आपकी चिंता ${concernLabel} है और सहायता की जरूरत ${supportLabel} है।`;
+
+  if (context.quizCorrectCount >= 2) {
+    summary += state.language === "en"
+      ? " You already know the basics, so the next step is calm preparation."
+      : " आपको बुनियादी बातें समझ आ गई हैं, अब ध्यान शांत तैयारी पर है।";
+  }
+
+  if (context.question) {
+    summary += state.language === "en"
+      ? " Your question is saved for the detailed guidance request."
+      : " आपका प्रश्न विस्तृत मार्गदर्शन अनुरोध के लिए शामिल है।";
+  }
+
+  const concernAction = {
+    registration: localized("Check your voter details early.", "मतदाता विवरण जल्दी जांचें।"),
+    documents: localized("Keep your ID papers together in one place.", "पहचान पत्र एक जगह रखें।"),
+    booth: localized("Confirm the polling booth before leaving home.", "घर से निकलने से पहले बूथ पता करें।"),
+    assistance: localized("Ask about senior support at the booth if needed.", "ज़रूरत हो तो वरिष्ठ सहायता के बारे में पूछें।"),
+    voting_process: localized("Use the step guide to understand the voting flow calmly.", "मतदान प्रक्रिया को शांति से समझने के लिए चरण गाइड देखें।"),
+    trusted_updates: localized("Trust only official election updates.", "सिर्फ आधिकारिक चुनाव जानकारी पर भरोसा करें।"),
+  };
+
+  const supportAction = {
+    none: localized("Use large text, contrast, and audio whenever it feels helpful.", "ज़रूरत लगे तो बड़े अक्षर, कॉन्ट्रास्ट और ऑडियो का उपयोग करें।"),
+    vision: localized("Keep glasses or a magnifier ready and ask for clear instructions.", "चश्मा या मैग्निफायर रखें और साफ़ निर्देश मांगें।"),
+    hearing: localized("Prefer written directions or face-to-face speaking support.", "लिखित निर्देश या सामने से बोलकर मदद लें।"),
+    mobility: localized("Plan seating, ramp access, and a comfortable travel time.", "बैठने, रैंप और आरामदायक समय की पहले योजना बनाएं।"),
+    helper: localized("A trusted helper can keep documents and travel plans organized.", "विश्वसनीय सहायक दस्तावेज़ और यात्रा को व्यवस्थित रख सकता है।"),
+  };
+
+  const actions = [
+    t(concernAction[context.concern]),
+    t(supportAction[context.supportNeed]),
+    t(copy.assistantPreviewAction),
+  ];
+
+  if (context.voteSubmitted) {
+    actions.push(
+      state.language === "en"
+        ? "Your practice vote is complete, so the final flow should feel more familiar."
+        : "आपने अभ्यास वोट पूरा कर लिया है, इसलिए अंतिम प्रक्रिया अधिक परिचित लगेगी।"
+    );
+  }
+
+  return {
+    summary,
+    actions,
+    reassurance: state.language === "en"
+      ? "This preview keeps things simple. Use Get Personal Guidance for full server advice."
+      : "यह प्रीव्यू बातों को सरल रखता है। पूरी सलाह के लिए Get Personal Guidance दबाएँ।",
+    nextStep,
+    whyThisHelp: state.language === "en"
+      ? `This quick preview uses the current step (${stepTitle}), concern (${concernLabel}), and support need (${supportLabel}) while keeping the secure server as the main source of detailed advice.`
+      : `यह त्वरित प्रीव्यू वर्तमान चरण (${stepTitle}), चिंता (${concernLabel}) और सहायता की जरूरत (${supportLabel}) के आधार पर बना है, जबकि विस्तृत सलाह के लिए सुरक्षित सर्वर मुख्य स्रोत है।`,
+    source: "local",
+  };
 }
 
 function updateLocalAssistant() {
-  state.assistantResult = buildLocalAssistantResponse(buildAssistantPayload());
+  state.assistantResult = buildOfflineAssistantPreview(buildAssistantPayload());
   renderAssistant();
+}
+
+function renderSelectOptions(selectElement, items, selectedId) {
+  selectElement.replaceChildren(
+    ...items.map((item) => {
+      const option = document.createElement("option");
+      option.value = item.id;
+      option.textContent = t(item.label);
+      option.selected = item.id === selectedId;
+      return option;
+    })
+  );
+}
+
+function renderTextList(listElement, items) {
+  listElement.replaceChildren(
+    ...items.map((item) => {
+      const listItem = document.createElement("li");
+      listItem.textContent = item;
+      return listItem;
+    })
+  );
+}
+
+function prefersReducedMotion() {
+  return typeof window.matchMedia === "function"
+    && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
+function focusElement(element) {
+  if (!element || typeof element.focus !== "function") return;
+  try {
+    element.focus({ preventScroll: true });
+  } catch {
+    element.focus();
+  }
 }
 
 async function loadAssistantAvailability() {
@@ -653,8 +767,10 @@ async function loadAssistantAvailability() {
     const response = await fetch("/api/config/public");
     if (!response.ok) throw new Error("config fetch failed");
     const data = await response.json();
-    state.assistantAvailability = data.assistant === "gemini" ? "gemini" : "fallback";
-    state.audioAvailability = data.audio === "google" ? "google" : "browser";
+    const geminiStatus = data.google_services?.gemini || {};
+    const ttsStatus = data.google_services?.cloud_text_to_speech || {};
+    state.assistantAvailability = geminiStatus.available ? "gemini" : "fallback";
+    state.audioAvailability = ttsStatus.available ? "google" : "browser";
   } catch {
     state.assistantAvailability = "local";
     state.audioAvailability = "browser";
@@ -704,11 +820,14 @@ async function requestAssistantGuidance() {
       whyThisHelp: data.why_this_help,
       source: data.source,
     };
+    state.assistantAvailability = data.source === "gemini" ? "gemini" : "fallback";
   } catch {
-    state.assistantResult = buildLocalAssistantResponse(buildAssistantPayload());
+    state.assistantAvailability = "local";
+    state.assistantResult = buildOfflineAssistantPreview(buildAssistantPayload());
   } finally {
     state.assistantLoading = false;
     renderAssistant();
+    renderStatus();
   }
 }
 
@@ -778,6 +897,8 @@ async function speakText(text) {
     if (playedRemotely) {
       return;
     }
+    state.audioAvailability = "browser";
+    renderStatus();
     announce(t(copy.speechFallbackBrowser));
   }
 
@@ -857,6 +978,8 @@ function renderStaticText() {
   elements.textSizeLabel.textContent = t(copy.textSizeLabel);
   elements.decreaseTextBtn.textContent = t(copy.decreaseText);
   elements.increaseTextBtn.textContent = t(copy.increaseText);
+  elements.decreaseTextBtn.setAttribute("aria-label", t(copy.decreaseTextAria));
+  elements.increaseTextBtn.setAttribute("aria-label", t(copy.increaseTextAria));
   elements.contrastLabel.textContent = t(copy.contrastLabel);
   elements.contrastToggleBtn.textContent = state.highContrast ? t(copy.contrastOff) : t(copy.contrastOn);
   elements.voiceLabel.textContent = t(copy.voiceLabel);
@@ -866,6 +989,7 @@ function renderStaticText() {
   elements.heroTitle.textContent = t(copy.heroTitle);
   elements.heroIntro.textContent = t(copy.heroIntro);
   elements.startLearningBtn.textContent = t(copy.startLearning);
+  elements.askAssistantBtn.textContent = t(copy.assistantAsk);
   elements.viewTimelineBtn.textContent = t(copy.viewTimeline);
   elements.listenHeroBtn.textContent = t(copy.listenAudio);
 
@@ -921,28 +1045,28 @@ function renderStaticText() {
 
   elements.langEnBtn.classList.toggle("active", state.language === "en");
   elements.langHiBtn.classList.toggle("active", state.language === "hi");
+  elements.langEnBtn.setAttribute("aria-pressed", String(state.language === "en"));
+  elements.langHiBtn.setAttribute("aria-pressed", String(state.language === "hi"));
+  elements.contrastToggleBtn.setAttribute("aria-pressed", String(state.highContrast));
 }
 
 function renderAssistant() {
   if (!state.assistantResult) {
-    state.assistantResult = buildLocalAssistantResponse(buildAssistantPayload());
+    state.assistantResult = buildOfflineAssistantPreview(buildAssistantPayload());
   }
 
-  elements.assistantConcern.innerHTML = assistantConcerns
-    .map((item) => `<option value="${item.id}" ${item.id === state.assistantConcern ? "selected" : ""}>${t(item.label)}</option>`)
-    .join("");
-
-  elements.assistantSupportNeed.innerHTML = assistantSupportNeeds
-    .map((item) => `<option value="${item.id}" ${item.id === state.assistantSupportNeed ? "selected" : ""}>${t(item.label)}</option>`)
-    .join("");
+  renderSelectOptions(elements.assistantConcern, assistantConcerns, state.assistantConcern);
+  renderSelectOptions(elements.assistantSupportNeed, assistantSupportNeeds, state.assistantSupportNeed);
 
   elements.assistantQuestion.value = state.assistantQuestion;
   elements.assistantAskBtn.textContent = state.assistantLoading ? t(copy.assistantLoading) : t(copy.assistantAsk);
   elements.assistantAskBtn.disabled = state.assistantLoading;
+  elements.assistantAskBtn.setAttribute("aria-busy", String(state.assistantLoading));
+  elements.assistantResponse.setAttribute("aria-busy", String(state.assistantLoading));
   elements.assistantSourceBadge.textContent = currentAssistantSourceLabel();
   elements.assistantModeBadge.textContent = currentAssistantModeLabel();
   elements.assistantSummary.textContent = state.assistantResult.summary;
-  elements.assistantActions.innerHTML = state.assistantResult.actions.map((action) => `<li>${action}</li>`).join("");
+  renderTextList(elements.assistantActions, state.assistantResult.actions);
   elements.assistantReassurance.textContent = state.assistantResult.reassurance;
   elements.assistantNextStep.textContent = state.assistantResult.nextStep;
   elements.assistantWhyThisHelp.textContent = state.assistantResult.whyThisHelp;
@@ -996,6 +1120,7 @@ function renderTimeline() {
           type="button"
           class="timeline-button ${index === state.currentStepIndex ? "active" : ""}"
           data-step-index="${index}"
+          aria-current="${index === state.currentStepIndex ? "step" : "false"}"
         >
           <span class="timeline-number">${index + 1}</span>
           <strong>${t(step.title)}</strong>
@@ -1123,7 +1248,7 @@ function getHeroSpeech() {
 }
 
 function getAssistantSpeech() {
-  const result = state.assistantResult || buildLocalAssistantResponse(buildAssistantPayload());
+  const result = state.assistantResult || buildOfflineAssistantPreview(buildAssistantPayload());
   return `${t(copy.assistantTitle)}. ${result.summary}. ${result.actions.join(" ")} ${result.reassurance}. ${t(copy.assistantNextStepLabel)} ${result.nextStep}.`;
 }
 
@@ -1155,7 +1280,10 @@ function getFaqSpeech() {
 function scrollToSection(sectionId) {
   const section = document.getElementById(sectionId);
   if (section) {
-    section.scrollIntoView({ behavior: "smooth", block: "start" });
+    section.scrollIntoView({
+      behavior: prefersReducedMotion() ? "auto" : "smooth",
+      block: "start",
+    });
   }
 }
 
@@ -1206,6 +1334,11 @@ elements.stopAudioBtn.addEventListener("click", () => {
 elements.startLearningBtn.addEventListener("click", () => {
   setStep(0);
   scrollToSection("guide");
+});
+
+elements.askAssistantBtn.addEventListener("click", () => {
+  scrollToSection("assistant");
+  focusElement(elements.assistantQuestion);
 });
 
 elements.viewTimelineBtn.addEventListener("click", () => {
@@ -1261,6 +1394,7 @@ elements.assistantQuestion.addEventListener("input", (event) => {
 
 elements.assistantAskBtn.addEventListener("click", async () => {
   await requestAssistantGuidance();
+  focusElement(elements.assistantResponse);
 });
 
 elements.prevStepBtn.addEventListener("click", () => {
