@@ -652,3 +652,425 @@ def test_logic_build_guidance_hindi_language() -> None:
     assert len(result.actions) >= 1
     # Hindi summary should contain Devanagari characters
     assert any(ord(c) > 0x0900 for c in result.summary)
+
+# ---------------------------------------------------------------------------
+# 100% coverage push — remaining uncovered lines
+# ---------------------------------------------------------------------------
+
+# --- gemini_assistant.py lines 74-75: DeadlineExceeded import succeeds ---
+def test_gemini_enhance_guidance_deadline_exceeded_triggers_fallback(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """enhance_guidance falls back when DeadlineExceeded is raised (import succeeds)."""
+    import sys
+    import types
+
+    from server import gemini_assistant
+    from server.logic import GuideResult
+
+    base = GuideResult(
+        summary="base", actions=["a", "b", "c"],
+        reassurance="r", next_step="n",
+        verification_tip="v", follow_up_prompt="f", why_this_help="w",
+    )
+
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    gemini_assistant._gemini_import_error.cache_clear()
+    monkeypatch.setattr("server.gemini_assistant._gemini_import_error", lambda: None)
+
+    # Create a real DeadlineExceeded-like exception class
+    class _DeadlineExceeded(Exception):
+        pass
+
+    fake_api_core_exc = types.ModuleType("google.api_core.exceptions")
+    fake_api_core_exc.DeadlineExceeded = _DeadlineExceeded  # type: ignore[attr-defined]
+
+    fake_genai = types.ModuleType("google.generativeai")
+
+    class _FakeModel:
+        def generate_content(self, *args: object, **kwargs: object) -> None:
+            raise _DeadlineExceeded("deadline exceeded")
+
+    fake_genai.configure = lambda api_key=None, **_: None  # type: ignore[attr-defined]
+    fake_genai.GenerativeModel = lambda *_: _FakeModel()  # type: ignore[attr-defined]
+
+    fake_google = types.ModuleType("google")
+    fake_api_core = types.ModuleType("google.api_core")
+    # Wire up the attribute chain so `from google.api_core.exceptions import X` works
+    fake_api_core.exceptions = fake_api_core_exc  # type: ignore[attr-defined]
+    fake_google.api_core = fake_api_core  # type: ignore[attr-defined]
+
+    monkeypatch.setitem(sys.modules, "google", fake_google)
+    monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+    monkeypatch.setitem(sys.modules, "google.api_core", fake_api_core)
+    monkeypatch.setitem(sys.modules, "google.api_core.exceptions", fake_api_core_exc)
+
+    result, source = gemini_assistant.enhance_guidance(
+        language="en",
+        step_title="Voting Day",
+        concern_label="Documents",
+        support_label="None",
+        question=None,
+        base_result=base,
+    )
+
+    assert source == "fallback"
+    assert result is base
+
+
+# --- gemini_assistant.py line 112: missing labels raises ValueError internally ---
+def test_gemini_enhance_guidance_falls_back_on_missing_labels(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """enhance_guidance falls back when Gemini response has no summary/reassurance."""
+    import sys
+    import types
+
+    from server import gemini_assistant
+    from server.logic import GuideResult
+
+    base = GuideResult(
+        summary="base", actions=["a", "b", "c"],
+        reassurance="r", next_step="n",
+        verification_tip="v", follow_up_prompt="f", why_this_help="w",
+    )
+
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    gemini_assistant._gemini_import_error.cache_clear()
+    monkeypatch.setattr("server.gemini_assistant._gemini_import_error", lambda: None)
+
+    class _FakeDeadlineExceeded(Exception):
+        pass
+
+    fake_api_core_exc = types.ModuleType("google.api_core.exceptions")
+    fake_api_core_exc.DeadlineExceeded = _FakeDeadlineExceeded  # type: ignore[attr-defined]
+
+    fake_genai = types.ModuleType("google.generativeai")
+
+    class _FakeResponse:
+        # Response with no recognized labels — triggers the ValueError branch
+        text = "This is just some random text with no labels at all."
+
+    class _FakeModel:
+        def generate_content(self, *args: object, **kwargs: object) -> _FakeResponse:
+            return _FakeResponse()
+
+    fake_genai.configure = lambda api_key=None, **_: None  # type: ignore[attr-defined]
+    fake_genai.GenerativeModel = lambda *_: _FakeModel()  # type: ignore[attr-defined]
+
+    fake_google = types.ModuleType("google")
+    monkeypatch.setitem(sys.modules, "google", fake_google)
+    monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+    monkeypatch.setitem(sys.modules, "google.api_core", types.ModuleType("google.api_core"))
+    monkeypatch.setitem(sys.modules, "google.api_core.exceptions", fake_api_core_exc)
+
+    result, source = gemini_assistant.enhance_guidance(
+        language="en",
+        step_title="Voting Day",
+        concern_label="Documents",
+        support_label="None",
+        question=None,
+        base_result=base,
+    )
+
+    assert source == "fallback"
+    assert result is base
+
+
+# --- google_audio.py lines 42, 49-50: TTS client init success path ---
+def test_tts_client_status_returns_ready_on_valid_credentials(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """_tts_client_status returns REASON_READY when credentials and client init succeed."""
+    import json
+    import sys
+    import types
+
+    from server import google_audio
+    from server.google_audio import REASON_READY
+
+    valid_json = json.dumps({
+        "type": "service_account",
+        "project_id": "test",
+        "private_key_id": "key123",
+        "private_key": "fake",
+        "client_email": "test@test.iam.gserviceaccount.com",
+        "client_id": "123",
+        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+        "token_uri": "https://oauth2.googleapis.com/token",
+    })
+
+    class _FakeCredentials:
+        @staticmethod
+        def from_service_account_info(_info: object) -> "_FakeCredentials":
+            return _FakeCredentials()
+
+    class _FakeTTSClient:
+        def __init__(self, credentials: object = None) -> None:
+            pass
+
+    fake_tts = types.ModuleType("google.cloud.texttospeech")
+    fake_tts.TextToSpeechClient = _FakeTTSClient  # type: ignore[attr-defined]
+
+    fake_sa = types.ModuleType("google.oauth2.service_account")
+    fake_sa.Credentials = _FakeCredentials  # type: ignore[attr-defined]
+
+    fake_google = types.ModuleType("google")
+    fake_cloud = types.ModuleType("google.cloud")
+    fake_oauth2 = types.ModuleType("google.oauth2")
+
+    monkeypatch.setitem(sys.modules, "google", fake_google)
+    monkeypatch.setitem(sys.modules, "google.cloud", fake_cloud)
+    monkeypatch.setitem(sys.modules, "google.cloud.texttospeech", fake_tts)
+    monkeypatch.setitem(sys.modules, "google.oauth2", fake_oauth2)
+    monkeypatch.setitem(sys.modules, "google.oauth2.service_account", fake_sa)
+
+    monkeypatch.setenv("GOOGLE_TTS_ENABLED", "true")
+    monkeypatch.setenv("GOOGLE_SERVICE_ACCOUNT_JSON", valid_json)
+    google_audio._tts_client_status.cache_clear()
+
+    client, reason = google_audio._tts_client_status()
+
+    assert reason == REASON_READY
+    assert client is not None
+
+
+# --- google_audio.py line 61: google_tts_service_status when ready ---
+def test_google_tts_service_status_available_when_ready(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """google_tts_service_status returns available=True when client is ready."""
+    from server import google_audio
+    from server.google_audio import REASON_READY
+
+    monkeypatch.setattr(
+        "server.google_audio._tts_client_status",
+        lambda: (object(), REASON_READY),
+    )
+
+    status = google_audio.google_tts_service_status()
+
+    assert status["available"] is True
+    assert status["reason"] == REASON_READY
+
+
+# --- google_audio.py lines 66-81: synthesize_speech full success path ---
+def test_synthesize_speech_returns_audio_on_success(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """synthesize_speech returns (audio_bytes, 'google_tts') on full success."""
+    import sys
+    import types
+
+    from server import google_audio
+    from server.google_audio import REASON_READY
+
+    class _FakeAudioConfig:
+        def __init__(self, **_: object) -> None:
+            pass
+
+    class _FakeVoice:
+        def __init__(self, **_: object) -> None:
+            pass
+
+    class _FakeSynthesisInput:
+        def __init__(self, **_: object) -> None:
+            pass
+
+    class _FakeAudioEncoding:
+        MP3 = "mp3"
+
+    class _FakeResponse:
+        audio_content = b"fake-mp3-bytes"
+
+    class _FakeClient:
+        def synthesize_speech(self, **_: object) -> _FakeResponse:
+            return _FakeResponse()
+
+    fake_tts = types.ModuleType("google.cloud.texttospeech")
+    fake_tts.SynthesisInput = _FakeSynthesisInput  # type: ignore[attr-defined]
+    fake_tts.VoiceSelectionParams = _FakeVoice  # type: ignore[attr-defined]
+    fake_tts.AudioConfig = _FakeAudioConfig  # type: ignore[attr-defined]
+    fake_tts.AudioEncoding = _FakeAudioEncoding  # type: ignore[attr-defined]
+
+    fake_google = types.ModuleType("google")
+    fake_cloud = types.ModuleType("google.cloud")
+    monkeypatch.setitem(sys.modules, "google", fake_google)
+    monkeypatch.setitem(sys.modules, "google.cloud", fake_cloud)
+    monkeypatch.setitem(sys.modules, "google.cloud.texttospeech", fake_tts)
+
+    monkeypatch.setattr(
+        "server.google_audio._tts_client_status",
+        lambda: (_FakeClient(), REASON_READY),
+    )
+
+    audio, provider = google_audio.synthesize_speech(text="Hello voter", language="en")
+
+    assert audio == b"fake-mp3-bytes"
+    assert provider == "google_tts"
+
+
+# --- google_audio.py: synthesize_speech Hindi voice path ---
+def test_synthesize_speech_uses_hindi_voice_for_hi_language(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """synthesize_speech selects Hindi voice when language='hi'."""
+    import sys
+    import types
+
+    from server import google_audio
+    from server.google_audio import REASON_READY
+
+    selected_voice: dict[str, str] = {}
+
+    class _FakeAudioConfig:
+        def __init__(self, **_: object) -> None:
+            pass
+
+    class _FakeVoice:
+        def __init__(self, language_code: str = "", name: str = "", **_: object) -> None:
+            selected_voice["language_code"] = language_code
+            selected_voice["name"] = name
+
+    class _FakeSynthesisInput:
+        def __init__(self, **_: object) -> None:
+            pass
+
+    class _FakeAudioEncoding:
+        MP3 = "mp3"
+
+    class _FakeResponse:
+        audio_content = b"hindi-audio"
+
+    class _FakeClient:
+        def synthesize_speech(self, **_: object) -> _FakeResponse:
+            return _FakeResponse()
+
+    fake_tts = types.ModuleType("google.cloud.texttospeech")
+    fake_tts.SynthesisInput = _FakeSynthesisInput  # type: ignore[attr-defined]
+    fake_tts.VoiceSelectionParams = _FakeVoice  # type: ignore[attr-defined]
+    fake_tts.AudioConfig = _FakeAudioConfig  # type: ignore[attr-defined]
+    fake_tts.AudioEncoding = _FakeAudioEncoding  # type: ignore[attr-defined]
+
+    fake_google = types.ModuleType("google")
+    fake_cloud = types.ModuleType("google.cloud")
+    monkeypatch.setitem(sys.modules, "google", fake_google)
+    monkeypatch.setitem(sys.modules, "google.cloud", fake_cloud)
+    monkeypatch.setitem(sys.modules, "google.cloud.texttospeech", fake_tts)
+
+    monkeypatch.setattr(
+        "server.google_audio._tts_client_status",
+        lambda: (_FakeClient(), REASON_READY),
+    )
+
+    audio, provider = google_audio.synthesize_speech(text="नमस्ते", language="hi")
+
+    assert audio == b"hindi-audio"
+    assert provider == "google_tts"
+    assert selected_voice["language_code"] == "hi-IN"
+    assert selected_voice["name"] == "hi-IN-Wavenet-A"
+
+
+# --- google_audio.py line 61: synthesize_speech when client is None ---
+def test_synthesize_speech_returns_fallback_when_no_client(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """synthesize_speech returns (None, 'fallback') when _tts_client_status has no client."""
+    from server import google_audio
+    from server.google_audio import REASON_DISABLED
+
+    monkeypatch.setattr(
+        "server.google_audio._tts_client_status",
+        lambda: (None, REASON_DISABLED),
+    )
+
+    audio, provider = google_audio.synthesize_speech(text="hello", language="en")
+
+    assert audio is None
+    assert provider == "fallback"
+
+
+# --- schemas.py line 74: _clean_text strips control characters ---
+def test_schemas_clean_text_strips_control_characters() -> None:
+    """StrictModel._clean_text removes control characters and strips whitespace."""
+    from server.schemas import StrictModel
+
+    dirty = "\x00Hello\x01 \x1fWorld\x7f  "
+    result = StrictModel._clean_text(dirty)
+    assert result == "Hello World"  # regex removes control chars, then strip() normalizes spaces
+
+
+def test_schemas_normalize_question_returns_none_for_whitespace_only(
+    client: TestClient,
+) -> None:
+    """normalize_question returns None (line 74: cleaned or None) when question strips to empty."""
+    from server.schemas import AssistantGuideRequest
+
+    # Pydantic will call normalize_question; control chars stripped → empty → None
+    req = AssistantGuideRequest(
+        language="en",
+        persona="older_adult",
+        step_index=0,
+        concern="registration",
+        support_need="none",
+        question="\x00\x01\x02\x1f",  # only control chars → cleaned = "" → None
+    )
+    assert req.question is None
+
+
+# --- main.py lines 137, 142: styles.css and script.js routes ---
+def test_styles_route_serves_css(client: TestClient) -> None:
+    """GET /styles.css returns the stylesheet."""
+    response = client.get("/styles.css")
+    assert response.status_code == 200
+    assert "text/css" in response.headers["content-type"]
+
+
+def test_script_route_serves_js(client: TestClient) -> None:
+    """GET /script.js returns the main JavaScript file."""
+    response = client.get("/script.js")
+    assert response.status_code == 200
+    assert "javascript" in response.headers["content-type"]
+
+
+# ---------------------------------------------------------------------------
+# Final two lines to reach 100%
+# ---------------------------------------------------------------------------
+
+# --- gemini_assistant.py line 36: _gemini_import_error returns None when import succeeds ---
+def test_gemini_import_error_returns_none_when_library_importable(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """_gemini_import_error returns None when google.generativeai can be imported."""
+    import sys
+    import types
+
+    from server import gemini_assistant
+
+    fake_genai = types.ModuleType("google.generativeai")
+    fake_google = types.ModuleType("google")
+    monkeypatch.setitem(sys.modules, "google", fake_google)
+    monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+
+    gemini_assistant._gemini_import_error.cache_clear()
+    result = gemini_assistant._gemini_import_error()
+
+    assert result is None
+
+
+# --- schemas.py line 74: normalize_question returns None when cleaned is empty ---
+def test_normalize_question_returns_none_when_only_control_chars() -> None:
+    """normalize_question hits `return cleaned or None` when input strips to empty string."""
+    from server.schemas import _normalize_optional_text
+
+    assert _normalize_optional_text("\x00\x01\x02\x1f") is None
+    assert _normalize_optional_text(None) is None
+    assert _normalize_optional_text("hello") == "hello"
+
+
+def test_normalize_question_returns_value_when_non_empty() -> None:
+    """normalize_question returns the cleaned string when input has real content."""
+    from server.schemas import AssistantGuideRequest
+
+    result = AssistantGuideRequest.normalize_question("What should I bring?")
+    assert result == "What should I bring?"

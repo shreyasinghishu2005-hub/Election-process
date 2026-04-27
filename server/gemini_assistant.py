@@ -20,6 +20,12 @@ REASON_READY: str = "ready"
 REASON_MISSING_API_KEY: str = "missing_api_key"
 REASON_LIBRARY_UNAVAILABLE: str = "library_unavailable"
 
+# Resolve DeadlineExceeded at module level so it is always defined
+try:
+    from google.api_core.exceptions import DeadlineExceeded as _DeadlineExceeded  # type: ignore[import-untyped]  # pragma: no cover
+except Exception:
+    _DeadlineExceeded = Exception  # type: ignore[assignment,misc]
+
 
 @lru_cache(maxsize=1)
 def _gemini_import_error() -> str | None:
@@ -67,12 +73,6 @@ def enhance_guidance(
     status = gemini_service_status()
     if not status["available"]:
         return base_result, "fallback"
-
-    # Resolve DeadlineExceeded once before the try block to avoid scoping issues
-    try:
-        from google.api_core.exceptions import DeadlineExceeded as _DeadlineExceeded  # type: ignore[import-untyped]
-    except Exception:
-        _DeadlineExceeded = Exception  # type: ignore[assignment,misc]
 
     try:
         import google.generativeai as genai  # type: ignore[import-untyped]

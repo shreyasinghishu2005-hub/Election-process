@@ -55,6 +55,14 @@ class GuideResponse(BaseModel):
     google_features: list[str] = Field(default_factory=list)
 
 
+def _normalize_optional_text(value: str | None) -> str | None:
+    """Strip control characters from an optional text field; return None if empty."""
+    if value is None:
+        return None
+    cleaned = StrictModel._clean_text(value)
+    return cleaned or None
+
+
 class AssistantGuideRequest(StrictModel):
     language: Literal["en", "hi"] = "en"
     persona: Literal["older_adult"] = "older_adult"
@@ -70,10 +78,7 @@ class AssistantGuideRequest(StrictModel):
     @field_validator("question", mode="before")
     @classmethod
     def normalize_question(cls, value: str | None) -> str | None:
-        if value is None:
-            return None
-        cleaned = cls._clean_text(value)
-        return cleaned or None
+        return _normalize_optional_text(value)
 
 
 class SpeakRequest(StrictModel):
