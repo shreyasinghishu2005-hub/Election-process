@@ -40,6 +40,7 @@ class PublicConfigResponse(BaseModel):
     audio: Literal["google", "browser"]
     persona: Literal["older_adult"]
     google_services: GoogleServicesStatusResponse
+    google_features: list[str] = Field(default_factory=list)
 
 
 class GuideResponse(BaseModel):
@@ -47,8 +48,11 @@ class GuideResponse(BaseModel):
     actions: list[str]
     reassurance: str
     next_step: str
+    verification_tip: str
+    follow_up_prompt: str
     why_this_help: str
     source: Literal["gemini", "fallback"]
+    google_features: list[str] = Field(default_factory=list)
 
 
 class AssistantGuideRequest(StrictModel):

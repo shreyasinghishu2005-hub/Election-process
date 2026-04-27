@@ -14,6 +14,7 @@ This standalone project is designed around one clear persona: **older voters who
 - The homepage now gives the assistant a primary call to action so the main solution is immediately visible to judges and users.
 - The frontend always has an **offline quick preview assistant** for demos without a server.
 - The backend can enhance the same guidance with **Google Gemini** when `GEMINI_API_KEY` is configured.
+- Gemini now improves more than one field: it can refine the summary, reassurance, official verification tip, and follow-up prompt.
 - The audio flow can use **Google Cloud Text-to-Speech** for more accessible spoken guidance when configured.
 
 ## Logical decision making
@@ -25,6 +26,7 @@ This standalone project is designed around one clear persona: **older voters who
 ## Google Services
 
 - **Google Gemini** is used server-side only for personalized, natural-language summaries and reassurance.
+- **Google Gemini** also strengthens the assistant with a verification reminder and a suggested next question.
 - **Google Cloud Text-to-Speech** is used server-side only for clearer elder-friendly audio playback.
 - The UI only reports Google services as available when the backend has verified they are actually ready.
 - API keys never reach the browser.
@@ -45,6 +47,7 @@ This standalone project is designed around one clear persona: **older voters who
 
 - Frontend and backend live in one self-contained folder.
 - Backend logic is split into `config`, `data`, `logic`, `gemini_assistant`, and `main`.
+- Assistant orchestration is separated into dedicated service modules instead of keeping route logic crowded in `main`.
 - The browser uses a lighter offline preview while the backend remains the main source of detailed decision logic.
 - Safer assistant rendering avoids injecting model-produced action text with `innerHTML`.
 - Tests cover real HTTP health, config, validation, extra-field rejection, security headers, audio behavior, and page serving.

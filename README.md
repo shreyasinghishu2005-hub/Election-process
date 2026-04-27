@@ -20,6 +20,11 @@ This folder contains a standalone, elder-friendly election explainer designed fo
   - quiz progress
   - practice ballot progress
   - optional user question
+- Richer assistant response cards with:
+  - personalized summary
+  - clear actions
+  - official verification tip
+  - follow-up question for the next step
 - Assistant-first homepage flow with a direct jump into personal guidance
 - Honest Google service status reporting so the UI only advertises Gemini or Google voice when they are actually ready
 - Optional Google Cloud Text-to-Speech audio for clearer elder-friendly playback
@@ -62,7 +67,7 @@ Then open:
 
 When configured:
 
-- **Google Gemini** adds a more natural personalized summary and reassurance.
+- **Google Gemini** adds a more natural personalized summary, reassurance, official verification tip, and follow-up question.
 - **Google Cloud Text-to-Speech** provides clearer server-generated audio playback for older users who benefit from slower, more consistent voice output.
 
 If those services are not configured, the project still works safely with:
@@ -82,7 +87,7 @@ python -m pytest tests -v
 - Persona/vertical: **older voter**
 - Google services: **Gemini** and **Google Cloud Text-to-Speech**
 - Safety: secrets remain server-side, responses include security headers, and requests are validated
-- Maintainability: backend logic is split into small files under [`server`](./server), service readiness is centralized, and risky assistant rendering paths now use safe DOM updates
+- Maintainability: backend logic is split into small files under [`server`](./server), Google service readiness is centralized, and the browser now uses a dedicated assistant preview helper instead of keeping all assistant logic in one oversized file
 - Testing: route-level tests cover config, validation, unexpected fields, blank-input rejection, audio fallbacks, HTML serving, HTTPS-aware headers, and security headers
 
 See [CHALLENGE_ALIGNMENT.md](./CHALLENGE_ALIGNMENT.md) for a direct rubric mapping.

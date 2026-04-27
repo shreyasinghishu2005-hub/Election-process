@@ -4,12 +4,14 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from typing import Callable, Awaitable
+
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, Response
+from fastapi.staticfiles import StaticFiles
 
-from . import config, gemini_assistant, google_audio, logic
-from .data import CONCERN_LABELS, STEP_TITLES, SUPPORT_LABELS
+from . import assistant_service, config, google_audio, google_services
 from .schemas import (
     AssistantGuideRequest,
     GuideResponse,
@@ -30,6 +32,7 @@ app.add_middleware(
 )
 
 BASE_DIR = Path(__file__).resolve().parents[1]
+app.mount("/js", StaticFiles(directory=BASE_DIR / "js"), name="js")
 CSP_POLICY = (
     "default-src 'self'; "
     "script-src 'self'; "
@@ -46,7 +49,7 @@ CSP_POLICY = (
 
 
 @app.middleware("http")
-async def add_security_headers(request: Request, call_next) -> Response:
+async def add_security_headers(request: Request, call_next: Callable[[Request], Awaitable[Response]]) -> Response:
     response = await call_next(request)
 
     if request.url.path.startswith("/api/"):
@@ -71,13 +74,6 @@ def _service_status_response(data: dict[str, str | bool]) -> ServiceStatusRespon
     return ServiceStatusResponse(available=bool(data["available"]), reason=str(data["reason"]))
 
 
-def _google_service_statuses() -> dict[str, dict[str, str | bool]]:
-    return {
-        "gemini": gemini_assistant.gemini_service_status(),
-        "cloud_text_to_speech": google_audio.google_tts_service_status(),
-    }
-
-
 def _request_is_secure(request: Request) -> bool:
     forwarded_proto = request.headers.get("x-forwarded-proto", "").split(",")[0].strip().lower()
     return request.url.scheme == "https" or forwarded_proto == "https"
@@ -85,66 +81,33 @@ def _request_is_secure(request: Request) -> bool:
 
 @app.get("/api/health", response_model=HealthResponse)
 def health() -> HealthResponse:
-    google_services = _google_service_statuses()
+    service_statuses = google_services.collect_google_service_statuses()
     return HealthResponse(
         status="ok",
         service="Election Process Guide",
         google_services={
-            name: _service_status_response(status) for name, status in google_services.items()
+            name: _service_status_response(status) for name, status in service_statuses.items()
         },
     )
 
 
 @app.get("/api/config/public", response_model=PublicConfigResponse)
 def public_config() -> PublicConfigResponse:
-    google_services = _google_service_statuses()
-    gemini_status = google_services["gemini"]
-    google_tts_status = google_services["cloud_text_to_speech"]
+    service_statuses = google_services.collect_google_service_statuses()
     return PublicConfigResponse(
-        assistant="gemini" if gemini_status["available"] else "fallback",
-        audio="google" if google_tts_status["available"] else "browser",
+        assistant=google_services.assistant_mode_from_statuses(service_statuses),
+        audio=google_services.audio_mode_from_statuses(service_statuses),
         persona="older_adult",
         google_services={
-            name: _service_status_response(status) for name, status in google_services.items()
+            name: _service_status_response(status) for name, status in service_statuses.items()
         },
+        google_features=google_services.available_google_features(service_statuses),
     )
 
 
 @app.post("/api/assistant/guide", response_model=GuideResponse)
 def assistant_guide(body: AssistantGuideRequest) -> GuideResponse:
-    base_result = logic.build_guidance(
-        language=body.language,
-        persona=body.persona,
-        step_index=body.step_index,
-        concern=body.concern,
-        support_need=body.support_need,
-        question=body.question,
-        high_contrast=body.high_contrast,
-        text_scale=body.text_scale,
-        vote_submitted=body.vote_submitted,
-        quiz_correct_count=body.quiz_correct_count,
-    )
-
-    step_title = STEP_TITLES[body.language][body.step_index]
-    concern_label = CONCERN_LABELS[body.concern][body.language]
-    support_label = SUPPORT_LABELS[body.support_need][body.language]
-    final_result, source = gemini_assistant.enhance_guidance(
-        language=body.language,
-        step_title=step_title,
-        concern_label=concern_label,
-        support_label=support_label,
-        question=body.question,
-        base_result=base_result,
-    )
-
-    return GuideResponse(
-        summary=final_result.summary,
-        actions=final_result.actions,
-        reassurance=final_result.reassurance,
-        next_step=final_result.next_step,
-        why_this_help=final_result.why_this_help,
-        source=source,
-    )
+    return assistant_service.build_assistant_response(body)
 
 
 @app.post("/api/audio/speak")

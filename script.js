@@ -1,299 +1,307 @@
-const localized = (en, hi) => ({ en, hi });
+﻿const localized = (en, hi) => ({ en, hi });
+const { buildOfflineAssistantPreview } = window.ElectionGuideAssistantPreview || {};
+
+if (!buildOfflineAssistantPreview) {
+  throw new Error("Assistant preview helper failed to load.");
+}
 
 const copy = {
-  brandEyebrow: localized("Smart civic learning tool", "स्मार्ट नागरिक सीखने का साधन"),
-  brandTitle: localized("Election Process Explained", "चुनाव प्रक्रिया समझिए"),
+  brandEyebrow: localized("Smart civic learning tool", "à¤¸à¥à¤®à¤¾à¤°à¥à¤Ÿ à¤¨à¤¾à¤—à¤°à¤¿à¤• à¤¸à¥€à¤–à¤¨à¥‡ à¤•à¤¾ à¤¸à¤¾à¤§à¤¨"),
+  brandTitle: localized("Election Process Explained", "à¤šà¥à¤¨à¤¾à¤µ à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾ à¤¸à¤®à¤à¤¿à¤"),
   brandSubtitle: localized(
     "Built for older voters with simple steps, large text, and calm guidance.",
-    "बुजुर्ग मतदाताओं के लिए सरल चरण, बड़े अक्षर और शांत मार्गदर्शन के साथ बनाया गया है।"
+    "à¤¬à¥à¤œà¥à¤°à¥à¤— à¤®à¤¤à¤¦à¤¾à¤¤à¤¾à¤“à¤‚ à¤•à¥‡ à¤²à¤¿à¤ à¤¸à¤°à¤² à¤šà¤°à¤£, à¤¬à¤¡à¤¼à¥‡ à¤…à¤•à¥à¤·à¤° à¤”à¤° à¤¶à¤¾à¤‚à¤¤ à¤®à¤¾à¤°à¥à¤—à¤¦à¤°à¥à¤¶à¤¨ à¤•à¥‡ à¤¸à¤¾à¤¥ à¤¬à¤¨à¤¾à¤¯à¤¾ à¤—à¤¯à¤¾ à¤¹à¥ˆà¥¤"
   ),
-  languageLabel: localized("Language", "भाषा"),
+  languageLabel: localized("Language", "à¤­à¤¾à¤·à¤¾"),
   english: localized("English", "English"),
-  hindi: localized("Hindi", "हिंदी"),
-  textSizeLabel: localized("Text size", "अक्षर आकार"),
+  hindi: localized("Hindi", "à¤¹à¤¿à¤‚à¤¦à¥€"),
+  textSizeLabel: localized("Text size", "à¤…à¤•à¥à¤·à¤° à¤†à¤•à¤¾à¤°"),
   decreaseText: localized("A-", "A-"),
   increaseText: localized("A+", "A+"),
-  decreaseTextAria: localized("Decrease text size", "टेक्स्ट छोटा करें"),
-  increaseTextAria: localized("Increase text size", "टेक्स्ट बड़ा करें"),
-  contrastLabel: localized("Contrast", "कॉन्ट्रास्ट"),
-  contrastOn: localized("High contrast", "हाई कॉन्ट्रास्ट"),
-  contrastOff: localized("Standard view", "सामान्य दृश्य"),
-  voiceLabel: localized("Audio", "ऑडियो"),
-  stopAudio: localized("Stop audio", "ऑडियो बंद करें"),
-  voiceReady: localized("Voice support ready", "आवाज सहायता तैयार है"),
-  voicePlaying: localized("Audio is playing", "ऑडियो चल रहा है"),
-  voiceReadyGoogle: localized("Google voice ready", "Google आवाज तैयार"),
-  voicePlayingGoogle: localized("Google voice playing", "Google आवाज चल रही है"),
-  voiceReadyBrowser: localized("Browser voice ready", "ब्राउज़र आवाज तैयार"),
-  voicePlayingBrowser: localized("Browser voice playing", "ब्राउज़र आवाज चल रही है"),
-  heroEyebrow: localized("Easy guide for all ages", "हर उम्र के लिए आसान गाइड"),
+  decreaseTextAria: localized("Decrease text size", "à¤Ÿà¥‡à¤•à¥à¤¸à¥à¤Ÿ à¤›à¥‹à¤Ÿà¤¾ à¤•à¤°à¥‡à¤‚"),
+  increaseTextAria: localized("Increase text size", "à¤Ÿà¥‡à¤•à¥à¤¸à¥à¤Ÿ à¤¬à¤¡à¤¼à¤¾ à¤•à¤°à¥‡à¤‚"),
+  contrastLabel: localized("Contrast", "à¤•à¥‰à¤¨à¥à¤Ÿà¥à¤°à¤¾à¤¸à¥à¤Ÿ"),
+  contrastOn: localized("High contrast", "à¤¹à¤¾à¤ˆ à¤•à¥‰à¤¨à¥à¤Ÿà¥à¤°à¤¾à¤¸à¥à¤Ÿ"),
+  contrastOff: localized("Standard view", "à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯ à¤¦à¥ƒà¤¶à¥à¤¯"),
+  voiceLabel: localized("Audio", "à¤‘à¤¡à¤¿à¤¯à¥‹"),
+  stopAudio: localized("Stop audio", "à¤‘à¤¡à¤¿à¤¯à¥‹ à¤¬à¤‚à¤¦ à¤•à¤°à¥‡à¤‚"),
+  voiceReady: localized("Voice support ready", "à¤†à¤µà¤¾à¤œ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾ à¤¤à¥ˆà¤¯à¤¾à¤° à¤¹à¥ˆ"),
+  voicePlaying: localized("Audio is playing", "à¤‘à¤¡à¤¿à¤¯à¥‹ à¤šà¤² à¤°à¤¹à¤¾ à¤¹à¥ˆ"),
+  voiceReadyGoogle: localized("Google voice ready", "Google à¤†à¤µà¤¾à¤œ à¤¤à¥ˆà¤¯à¤¾à¤°"),
+  voicePlayingGoogle: localized("Google voice playing", "Google à¤†à¤µà¤¾à¤œ à¤šà¤² à¤°à¤¹à¥€ à¤¹à¥ˆ"),
+  voiceReadyBrowser: localized("Browser voice ready", "à¤¬à¥à¤°à¤¾à¤‰à¤œà¤¼à¤° à¤†à¤µà¤¾à¤œ à¤¤à¥ˆà¤¯à¤¾à¤°"),
+  voicePlayingBrowser: localized("Browser voice playing", "à¤¬à¥à¤°à¤¾à¤‰à¤œà¤¼à¤° à¤†à¤µà¤¾à¤œ à¤šà¤² à¤°à¤¹à¥€ à¤¹à¥ˆ"),
+  heroEyebrow: localized("Easy guide for all ages", "à¤¹à¤° à¤‰à¤®à¥à¤° à¤•à¥‡ à¤²à¤¿à¤ à¤†à¤¸à¤¾à¤¨ à¤—à¤¾à¤‡à¤¡"),
   heroTitle: localized(
     "Learn how an election works, one step at a time.",
-    "चुनाव कैसे होता है, इसे एक-एक कदम में समझिए।"
+    "à¤šà¥à¤¨à¤¾à¤µ à¤•à¥ˆà¤¸à¥‡ à¤¹à¥‹à¤¤à¤¾ à¤¹à¥ˆ, à¤‡à¤¸à¥‡ à¤à¤•-à¤à¤• à¤•à¤¦à¤® à¤®à¥‡à¤‚ à¤¸à¤®à¤à¤¿à¤à¥¤"
   ),
   heroIntro: localized(
     "This guide explains what happens before voting day, on voting day, and after the vote count. The language stays simple so older adults can follow without confusion.",
-    "यह गाइड बताती है कि मतदान से पहले, मतदान के दिन और वोट गिनती के बाद क्या होता है। भाषा आसान रखी गई है ताकि बुजुर्ग बिना उलझन के समझ सकें।"
+    "à¤¯à¤¹ à¤—à¤¾à¤‡à¤¡ à¤¬à¤¤à¤¾à¤¤à¥€ à¤¹à¥ˆ à¤•à¤¿ à¤®à¤¤à¤¦à¤¾à¤¨ à¤¸à¥‡ à¤ªà¤¹à¤²à¥‡, à¤®à¤¤à¤¦à¤¾à¤¨ à¤•à¥‡ à¤¦à¤¿à¤¨ à¤”à¤° à¤µà¥‹à¤Ÿ à¤—à¤¿à¤¨à¤¤à¥€ à¤•à¥‡ à¤¬à¤¾à¤¦ à¤•à¥à¤¯à¤¾ à¤¹à¥‹à¤¤à¤¾ à¤¹à¥ˆà¥¤ à¤­à¤¾à¤·à¤¾ à¤†à¤¸à¤¾à¤¨ à¤°à¤–à¥€ à¤—à¤ˆ à¤¹à¥ˆ à¤¤à¤¾à¤•à¤¿ à¤¬à¥à¤œà¥à¤°à¥à¤— à¤¬à¤¿à¤¨à¤¾ à¤‰à¤²à¤à¤¨ à¤•à¥‡ à¤¸à¤®à¤ à¤¸à¤•à¥‡à¤‚à¥¤"
   ),
-  startLearning: localized("Start Learning", "सीखना शुरू करें"),
-  viewTimeline: localized("View Timeline", "टाइमलाइन देखें"),
-  listenAudio: localized("Listen Audio", "आवाज में सुनें"),
-  listenSection: localized("Listen", "सुनें"),
-  listenStep: localized("Listen to this step", "यह चरण सुनें"),
-  assistantEyebrow: localized("Smart assistant", "स्मार्ट सहायक"),
+  startLearning: localized("Start Learning", "à¤¸à¥€à¤–à¤¨à¤¾ à¤¶à¥à¤°à¥‚ à¤•à¤°à¥‡à¤‚"),
+  viewTimeline: localized("View Timeline", "à¤Ÿà¤¾à¤‡à¤®à¤²à¤¾à¤‡à¤¨ à¤¦à¥‡à¤–à¥‡à¤‚"),
+  listenAudio: localized("Listen Audio", "à¤†à¤µà¤¾à¤œ à¤®à¥‡à¤‚ à¤¸à¥à¤¨à¥‡à¤‚"),
+  listenSection: localized("Listen", "à¤¸à¥à¤¨à¥‡à¤‚"),
+  listenStep: localized("Listen to this step", "à¤¯à¤¹ à¤šà¤°à¤£ à¤¸à¥à¤¨à¥‡à¤‚"),
+  assistantEyebrow: localized("Smart assistant", "à¤¸à¥à¤®à¤¾à¤°à¥à¤Ÿ à¤¸à¤¹à¤¾à¤¯à¤•"),
   assistantTitle: localized(
     "Get personal help for an older voter",
-    "वरिष्ठ मतदाता के लिए व्यक्तिगत मदद पाएं"
+    "à¤µà¤°à¤¿à¤·à¥à¤  à¤®à¤¤à¤¦à¤¾à¤¤à¤¾ à¤•à¥‡ à¤²à¤¿à¤ à¤µà¥à¤¯à¤•à¥à¤¤à¤¿à¤—à¤¤ à¤®à¤¦à¤¦ à¤ªà¤¾à¤à¤‚"
   ),
   assistantIntro: localized(
     "This assistant changes its advice based on the current election step, your concern, accessibility need, practice progress, and optional question. It gives a simple offline preview in the browser and can use Google Gemini plus Google Cloud Text-to-Speech when the secure server is running.",
-    "यह सहायक वर्तमान चुनाव चरण, आपकी चिंता, सहायता की जरूरत, अभ्यास प्रगति और वैकल्पिक प्रश्न के आधार पर सलाह बदलता है। यह स्थानीय नियमों के साथ ऑफलाइन भी काम करता है और सुरक्षित सर्वर चलने पर Google Gemini और Google Cloud Text-to-Speech का उपयोग कर सकता है।"
+    "à¤¯à¤¹ à¤¸à¤¹à¤¾à¤¯à¤• à¤µà¤°à¥à¤¤à¤®à¤¾à¤¨ à¤šà¥à¤¨à¤¾à¤µ à¤šà¤°à¤£, à¤†à¤ªà¤•à¥€ à¤šà¤¿à¤‚à¤¤à¤¾, à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾ à¤•à¥€ à¤œà¤°à¥‚à¤°à¤¤, à¤…à¤­à¥à¤¯à¤¾à¤¸ à¤ªà¥à¤°à¤—à¤¤à¤¿ à¤”à¤° à¤µà¥ˆà¤•à¤²à¥à¤ªà¤¿à¤• à¤ªà¥à¤°à¤¶à¥à¤¨ à¤•à¥‡ à¤†à¤§à¤¾à¤° à¤ªà¤° à¤¸à¤²à¤¾à¤¹ à¤¬à¤¦à¤²à¤¤à¤¾ à¤¹à¥ˆà¥¤ à¤¯à¤¹ à¤¸à¥à¤¥à¤¾à¤¨à¥€à¤¯ à¤¨à¤¿à¤¯à¤®à¥‹à¤‚ à¤•à¥‡ à¤¸à¤¾à¤¥ à¤‘à¤«à¤²à¤¾à¤‡à¤¨ à¤­à¥€ à¤•à¤¾à¤® à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ à¤”à¤° à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¸à¤°à¥à¤µà¤° à¤šà¤²à¤¨à¥‡ à¤ªà¤° Google Gemini à¤”à¤° Google Cloud Text-to-Speech à¤•à¤¾ à¤‰à¤ªà¤¯à¥‹à¤— à¤•à¤° à¤¸à¤•à¤¤à¤¾ à¤¹à¥ˆà¥¤"
   ),
-  assistantPersona: localized("Chosen persona: Older voter", "चुना गया व्यक्तित्व: वरिष्ठ मतदाता"),
-  assistantConcernLabel: localized("What do you need help with?", "आपको किस बात में मदद चाहिए?"),
-  assistantSupportLabel: localized("Accessibility or support need", "सहायता या पहुंच की जरूरत"),
-  assistantQuestionLabel: localized("Optional question", "वैकल्पिक प्रश्न"),
+  assistantPersona: localized("Chosen persona: Older voter", "à¤šà¥à¤¨à¤¾ à¤—à¤¯à¤¾ à¤µà¥à¤¯à¤•à¥à¤¤à¤¿à¤¤à¥à¤µ: à¤µà¤°à¤¿à¤·à¥à¤  à¤®à¤¤à¤¦à¤¾à¤¤à¤¾"),
+  assistantConcernLabel: localized("What do you need help with?", "à¤†à¤ªà¤•à¥‹ à¤•à¤¿à¤¸ à¤¬à¤¾à¤¤ à¤®à¥‡à¤‚ à¤®à¤¦à¤¦ à¤šà¤¾à¤¹à¤¿à¤?"),
+  assistantSupportLabel: localized("Accessibility or support need", "à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾ à¤¯à¤¾ à¤ªà¤¹à¥à¤‚à¤š à¤•à¥€ à¤œà¤°à¥‚à¤°à¤¤"),
+  assistantQuestionLabel: localized("Optional question", "à¤µà¥ˆà¤•à¤²à¥à¤ªà¤¿à¤• à¤ªà¥à¤°à¤¶à¥à¤¨"),
   assistantQuestionPlaceholder: localized(
     "Example: I may need help standing in line for a long time.",
-    "उदाहरण: मुझे लंबी लाइन में खड़े रहने में कठिनाई हो सकती है।"
+    "à¤‰à¤¦à¤¾à¤¹à¤°à¤£: à¤®à¥à¤à¥‡ à¤²à¤‚à¤¬à¥€ à¤²à¤¾à¤‡à¤¨ à¤®à¥‡à¤‚ à¤–à¤¡à¤¼à¥‡ à¤°à¤¹à¤¨à¥‡ à¤®à¥‡à¤‚ à¤•à¤ à¤¿à¤¨à¤¾à¤ˆ à¤¹à¥‹ à¤¸à¤•à¤¤à¥€ à¤¹à¥ˆà¥¤"
   ),
-  assistantAsk: localized("Get Personal Guidance", "व्यक्तिगत मार्गदर्शन लें"),
-  assistantLoading: localized("Preparing guidance...", "मार्गदर्शन तैयार हो रहा है..."),
-  assistantSummaryTitle: localized("Personal guidance", "व्यक्तिगत मार्गदर्शन"),
-  assistantActionsTitle: localized("Recommended actions", "सुझाए गए कदम"),
-  assistantReassuranceLabel: localized("Reassurance:", "हौसला:"),
-  assistantNextStepLabel: localized("Next:", "अगला:"),
-  assistantModeLocal: localized("Offline preview mode", "ऑफलाइन प्रीव्यू मोड"),
-  assistantModeFallback: localized("Server rules ready", "सर्वर नियम तैयार"),
-  assistantModeGemini: localized("Google Gemini ready", "Google Gemini तैयार"),
-  assistantSourceLocal: localized("Source: offline quick preview", "स्रोत: ऑफलाइन त्वरित प्रीव्यू"),
-  assistantSourceFallback: localized("Source: secure server fallback", "स्रोत: सुरक्षित सर्वर फॉलबैक"),
-  assistantSourceGemini: localized("Source: Google Gemini", "स्रोत: Google Gemini"),
+  assistantAsk: localized("Get Personal Guidance", "à¤µà¥à¤¯à¤•à¥à¤¤à¤¿à¤—à¤¤ à¤®à¤¾à¤°à¥à¤—à¤¦à¤°à¥à¤¶à¤¨ à¤²à¥‡à¤‚"),
+  assistantLoading: localized("Preparing guidance...", "à¤®à¤¾à¤°à¥à¤—à¤¦à¤°à¥à¤¶à¤¨ à¤¤à¥ˆà¤¯à¤¾à¤° à¤¹à¥‹ à¤°à¤¹à¤¾ à¤¹à¥ˆ..."),
+  assistantSummaryTitle: localized("Personal guidance", "à¤µà¥à¤¯à¤•à¥à¤¤à¤¿à¤—à¤¤ à¤®à¤¾à¤°à¥à¤—à¤¦à¤°à¥à¤¶à¤¨"),
+  assistantActionsTitle: localized("Recommended actions", "à¤¸à¥à¤à¤¾à¤ à¤—à¤ à¤•à¤¦à¤®"),
+  assistantReassuranceLabel: localized("Reassurance:", "à¤¹à¥Œà¤¸à¤²à¤¾:"),
+  assistantNextStepLabel: localized("Next:", "à¤…à¤—à¤²à¤¾:"),
+  assistantVerificationLabel: localized("Check this officially:", "à¤‡à¤¸à¥‡ à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤°à¥‚à¤ª à¤¸à¥‡ à¤œà¤¾à¤‚à¤šà¥‡à¤‚:"),
+  assistantFollowUpLabel: localized("Helpful next question:", "à¤…à¤—à¤²à¤¾ à¤‰à¤ªà¤¯à¥‹à¤—à¥€ à¤¸à¤µà¤¾à¤²:"),
+  assistantGoogleFeaturesTitle: localized("Google support in this response", "à¤‡à¤¸ à¤‰à¤¤à¥à¤¤à¤° à¤®à¥‡à¤‚ Google à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾"),
+  assistantModeLocal: localized("Offline preview mode", "à¤‘à¤«à¤²à¤¾à¤‡à¤¨ à¤ªà¥à¤°à¥€à¤µà¥à¤¯à¥‚ à¤®à¥‹à¤¡"),
+  assistantModeFallback: localized("Server rules ready", "à¤¸à¤°à¥à¤µà¤° à¤¨à¤¿à¤¯à¤® à¤¤à¥ˆà¤¯à¤¾à¤°"),
+  assistantModeGemini: localized("Google Gemini ready", "Google Gemini à¤¤à¥ˆà¤¯à¤¾à¤°"),
+  assistantSourceLocal: localized("Source: offline quick preview", "à¤¸à¥à¤°à¥‹à¤¤: à¤‘à¤«à¤²à¤¾à¤‡à¤¨ à¤¤à¥à¤µà¤°à¤¿à¤¤ à¤ªà¥à¤°à¥€à¤µà¥à¤¯à¥‚"),
+  assistantSourceFallback: localized("Source: secure server fallback", "à¤¸à¥à¤°à¥‹à¤¤: à¤¸à¥à¤°à¤•à¥à¤·à¤¿à¤¤ à¤¸à¤°à¥à¤µà¤° à¤«à¥‰à¤²à¤¬à¥ˆà¤•"),
+  assistantSourceGemini: localized("Source: Google Gemini", "à¤¸à¥à¤°à¥‹à¤¤: Google Gemini"),
   assistantPreviewAction: localized(
     "Press Get Personal Guidance for detailed advice from the secure server.",
-    "विस्तृत सलाह के लिए Get Personal Guidance दबाएँ।"
+    "à¤µà¤¿à¤¸à¥à¤¤à¥ƒà¤¤ à¤¸à¤²à¤¾à¤¹ à¤•à¥‡ à¤²à¤¿à¤ Get Personal Guidance à¤¦à¤¬à¤¾à¤à¤à¥¤"
   ),
-  guideEyebrow: localized("Step-by-step guide", "एक-एक चरण की जानकारी"),
-  guideTitle: localized("Follow the election process in order", "चुनाव प्रक्रिया को सही क्रम में समझें"),
+  guideEyebrow: localized("Step-by-step guide", "à¤à¤•-à¤à¤• à¤šà¤°à¤£ à¤•à¥€ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€"),
+  guideTitle: localized("Follow the election process in order", "à¤šà¥à¤¨à¤¾à¤µ à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾ à¤•à¥‹ à¤¸à¤¹à¥€ à¤•à¥à¤°à¤® à¤®à¥‡à¤‚ à¤¸à¤®à¤à¥‡à¤‚"),
   guideIntro: localized(
     "Use Next and Back to move through the process. Each screen keeps the explanation short and clear.",
-    "प्रक्रिया समझने के लिए Next और Back का उपयोग करें। हर स्क्रीन पर जानकारी छोटी और साफ रखी गई है।"
+    "à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾ à¤¸à¤®à¤à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ Next à¤”à¤° Back à¤•à¤¾ à¤‰à¤ªà¤¯à¥‹à¤— à¤•à¤°à¥‡à¤‚à¥¤ à¤¹à¤° à¤¸à¥à¤•à¥à¤°à¥€à¤¨ à¤ªà¤° à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤›à¥‹à¤Ÿà¥€ à¤”à¤° à¤¸à¤¾à¤« à¤°à¤–à¥€ à¤—à¤ˆ à¤¹à¥ˆà¥¤"
   ),
-  prevStep: localized("Back", "पीछे"),
-  nextStep: localized("Next", "अगला"),
-  stepForYou: localized("What this means for you", "आपके लिए इसका मतलब"),
-  timelineEyebrow: localized("Visual timeline", "दृश्य टाइमलाइन"),
-  timelineTitle: localized("See all six steps together", "सभी छह चरण एक साथ देखें"),
+  prevStep: localized("Back", "à¤ªà¥€à¤›à¥‡"),
+  nextStep: localized("Next", "à¤…à¤—à¤²à¤¾"),
+  stepForYou: localized("What this means for you", "à¤†à¤ªà¤•à¥‡ à¤²à¤¿à¤ à¤‡à¤¸à¤•à¤¾ à¤®à¤¤à¤²à¤¬"),
+  timelineEyebrow: localized("Visual timeline", "à¤¦à¥ƒà¤¶à¥à¤¯ à¤Ÿà¤¾à¤‡à¤®à¤²à¤¾à¤‡à¤¨"),
+  timelineTitle: localized("See all six steps together", "à¤¸à¤­à¥€ à¤›à¤¹ à¤šà¤°à¤£ à¤à¤• à¤¸à¤¾à¤¥ à¤¦à¥‡à¤–à¥‡à¤‚"),
   timelineIntro: localized(
     "Tap any step to jump straight to it. The current step stays highlighted.",
-    "किसी भी चरण पर टैप करें और सीधे उस पर जाएं। जो चरण खुला है, वह हाइलाइट रहेगा।"
+    "à¤•à¤¿à¤¸à¥€ à¤­à¥€ à¤šà¤°à¤£ à¤ªà¤° à¤Ÿà¥ˆà¤ª à¤•à¤°à¥‡à¤‚ à¤”à¤° à¤¸à¥€à¤§à¥‡ à¤‰à¤¸ à¤ªà¤° à¤œà¤¾à¤à¤‚à¥¤ à¤œà¥‹ à¤šà¤°à¤£ à¤–à¥à¤²à¤¾ à¤¹à¥ˆ, à¤µà¤¹ à¤¹à¤¾à¤‡à¤²à¤¾à¤‡à¤Ÿ à¤°à¤¹à¥‡à¤—à¤¾à¥¤"
   ),
-  guidanceEyebrow: localized("Real-life guidance", "व्यावहारिक मदद"),
-  guidanceTitle: localized("What you need to do", "आपको क्या करना है"),
+  guidanceEyebrow: localized("Real-life guidance", "à¤µà¥à¤¯à¤¾à¤µà¤¹à¤¾à¤°à¤¿à¤• à¤®à¤¦à¤¦"),
+  guidanceTitle: localized("What you need to do", "à¤†à¤ªà¤•à¥‹ à¤•à¥à¤¯à¤¾ à¤•à¤°à¤¨à¤¾ à¤¹à¥ˆ"),
   guidanceIntro: localized(
     "These reminders help you prepare for voting day in a calm and simple way.",
-    "ये आसान याद दिलाने वाली बातें आपको मतदान दिवस के लिए सरल तरीके से तैयार करती हैं।"
+    "à¤¯à¥‡ à¤†à¤¸à¤¾à¤¨ à¤¯à¤¾à¤¦ à¤¦à¤¿à¤²à¤¾à¤¨à¥‡ à¤µà¤¾à¤²à¥€ à¤¬à¤¾à¤¤à¥‡à¤‚ à¤†à¤ªà¤•à¥‹ à¤®à¤¤à¤¦à¤¾à¤¨ à¤¦à¤¿à¤µà¤¸ à¤•à¥‡ à¤²à¤¿à¤ à¤¸à¤°à¤² à¤¤à¤°à¥€à¤•à¥‡ à¤¸à¥‡ à¤¤à¥ˆà¤¯à¤¾à¤° à¤•à¤°à¤¤à¥€ à¤¹à¥ˆà¤‚à¥¤"
   ),
   guidanceNote: localized(
     "Rules can change by place. Always confirm local details with your election office or official election website.",
-    "नियम अलग-अलग जगह बदल सकते हैं। सही जानकारी के लिए अपने स्थानीय चुनाव कार्यालय या आधिकारिक चुनाव वेबसाइट से पुष्टि करें।"
+    "à¤¨à¤¿à¤¯à¤® à¤…à¤²à¤—-à¤…à¤²à¤— à¤œà¤—à¤¹ à¤¬à¤¦à¤² à¤¸à¤•à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤ à¤¸à¤¹à¥€ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤•à¥‡ à¤²à¤¿à¤ à¤…à¤ªà¤¨à¥‡ à¤¸à¥à¤¥à¤¾à¤¨à¥€à¤¯ à¤šà¥à¤¨à¤¾à¤µ à¤•à¤¾à¤°à¥à¤¯à¤¾à¤²à¤¯ à¤¯à¤¾ à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤šà¥à¤¨à¤¾à¤µ à¤µà¥‡à¤¬à¤¸à¤¾à¤‡à¤Ÿ à¤¸à¥‡ à¤ªà¥à¤·à¥à¤Ÿà¤¿ à¤•à¤°à¥‡à¤‚à¥¤"
   ),
-  practiceEyebrow: localized("Practice mode", "प्रैक्टिस मोड"),
-  practiceTitle: localized("Try a simple demo ballot", "एक आसान डेमो मतपत्र आजमाएं"),
+  practiceEyebrow: localized("Practice mode", "à¤ªà¥à¤°à¥ˆà¤•à¥à¤Ÿà¤¿à¤¸ à¤®à¥‹à¤¡"),
+  practiceTitle: localized("Try a simple demo ballot", "à¤à¤• à¤†à¤¸à¤¾à¤¨ à¤¡à¥‡à¤®à¥‹ à¤®à¤¤à¤ªà¤¤à¥à¤° à¤†à¤œà¤®à¤¾à¤à¤‚"),
   practiceIntro: localized(
     "This is only for learning. Choose one candidate and press Submit Vote to see how a simple ballot works.",
-    "यह केवल सीखने के लिए है। एक उम्मीदवार चुनें और Submit Vote दबाएं ताकि समझ सकें कि सरल मतपत्र कैसे काम करता है।"
+    "à¤¯à¤¹ à¤•à¥‡à¤µà¤² à¤¸à¥€à¤–à¤¨à¥‡ à¤•à¥‡ à¤²à¤¿à¤ à¤¹à¥ˆà¥¤ à¤à¤• à¤‰à¤®à¥à¤®à¥€à¤¦à¤µà¤¾à¤° à¤šà¥à¤¨à¥‡à¤‚ à¤”à¤° Submit Vote à¤¦à¤¬à¤¾à¤à¤‚ à¤¤à¤¾à¤•à¤¿ à¤¸à¤®à¤ à¤¸à¤•à¥‡à¤‚ à¤•à¤¿ à¤¸à¤°à¤² à¤®à¤¤à¤ªà¤¤à¥à¤° à¤•à¥ˆà¤¸à¥‡ à¤•à¤¾à¤® à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆà¥¤"
   ),
-  practiceNote: localized("Demo only. No real vote is recorded here.", "यह केवल डेमो है। यहां कोई वास्तविक वोट दर्ज नहीं होता।"),
-  submitVote: localized("Submit Vote", "वोट जमा करें"),
-  resetVote: localized("Clear Choice", "चयन हटाएं"),
+  practiceNote: localized("Demo only. No real vote is recorded here.", "à¤¯à¤¹ à¤•à¥‡à¤µà¤² à¤¡à¥‡à¤®à¥‹ à¤¹à¥ˆà¥¤ à¤¯à¤¹à¤¾à¤‚ à¤•à¥‹à¤ˆ à¤µà¤¾à¤¸à¥à¤¤à¤µà¤¿à¤• à¤µà¥‹à¤Ÿ à¤¦à¤°à¥à¤œ à¤¨à¤¹à¥€à¤‚ à¤¹à¥‹à¤¤à¤¾à¥¤"),
+  submitVote: localized("Submit Vote", "à¤µà¥‹à¤Ÿ à¤œà¤®à¤¾ à¤•à¤°à¥‡à¤‚"),
+  resetVote: localized("Clear Choice", "à¤šà¤¯à¤¨ à¤¹à¤Ÿà¤¾à¤à¤‚"),
   voteSuccess: localized(
     "Vote submitted successfully. This was a practice vote only.",
-    "वोट सफलतापूर्वक जमा हुआ। यह केवल अभ्यास वाला वोट था।"
+    "à¤µà¥‹à¤Ÿ à¤¸à¤«à¤²à¤¤à¤¾à¤ªà¥‚à¤°à¥à¤µà¤• à¤œà¤®à¤¾ à¤¹à¥à¤†à¥¤ à¤¯à¤¹ à¤•à¥‡à¤µà¤² à¤…à¤­à¥à¤¯à¤¾à¤¸ à¤µà¤¾à¤²à¤¾ à¤µà¥‹à¤Ÿ à¤¥à¤¾à¥¤"
   ),
-  votePickFirst: localized("Please choose one candidate first.", "कृपया पहले एक उम्मीदवार चुनें।"),
-  quizEyebrow: localized("Simple quiz", "सरल प्रश्न"),
-  quizTitle: localized("Check what you learned", "देखिए आपने क्या सीखा"),
+  votePickFirst: localized("Please choose one candidate first.", "à¤•à¥ƒà¤ªà¤¯à¤¾ à¤ªà¤¹à¤²à¥‡ à¤à¤• à¤‰à¤®à¥à¤®à¥€à¤¦à¤µà¤¾à¤° à¤šà¥à¤¨à¥‡à¤‚à¥¤"),
+  quizEyebrow: localized("Simple quiz", "à¤¸à¤°à¤² à¤ªà¥à¤°à¤¶à¥à¤¨"),
+  quizTitle: localized("Check what you learned", "à¤¦à¥‡à¤–à¤¿à¤ à¤†à¤ªà¤¨à¥‡ à¤•à¥à¤¯à¤¾ à¤¸à¥€à¤–à¤¾"),
   quizIntro: localized(
     "These questions are short and easy. You will get feedback right away.",
-    "ये प्रश्न छोटे और आसान हैं। आपको तुरंत उत्तर मिलेगा कि जवाब सही है या नहीं।"
+    "à¤¯à¥‡ à¤ªà¥à¤°à¤¶à¥à¤¨ à¤›à¥‹à¤Ÿà¥‡ à¤”à¤° à¤†à¤¸à¤¾à¤¨ à¤¹à¥ˆà¤‚à¥¤ à¤†à¤ªà¤•à¥‹ à¤¤à¥à¤°à¤‚à¤¤ à¤‰à¤¤à¥à¤¤à¤° à¤®à¤¿à¤²à¥‡à¤—à¤¾ à¤•à¤¿ à¤œà¤µà¤¾à¤¬ à¤¸à¤¹à¥€ à¤¹à¥ˆ à¤¯à¤¾ à¤¨à¤¹à¥€à¤‚à¥¤"
   ),
-  correct: localized("Correct", "सही"),
-  tryAgain: localized("Try again", "फिर कोशिश करें"),
-  faqEyebrow: localized("Help and FAQ", "मदद और सामान्य प्रश्न"),
-  faqTitle: localized("Common questions", "सामान्य सवाल"),
+  correct: localized("Correct", "à¤¸à¤¹à¥€"),
+  tryAgain: localized("Try again", "à¤«à¤¿à¤° à¤•à¥‹à¤¶à¤¿à¤¶ à¤•à¤°à¥‡à¤‚"),
+  faqEyebrow: localized("Help and FAQ", "à¤®à¤¦à¤¦ à¤”à¤° à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯ à¤ªà¥à¤°à¤¶à¥à¤¨"),
+  faqTitle: localized("Common questions", "à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯ à¤¸à¤µà¤¾à¤²"),
   faqIntro: localized(
     "Short answers to common concerns people have before voting.",
-    "मतदान से पहले लोगों के सामान्य सवालों के छोटे और साफ जवाब।"
+    "à¤®à¤¤à¤¦à¤¾à¤¨ à¤¸à¥‡ à¤ªà¤¹à¤²à¥‡ à¤²à¥‹à¤—à¥‹à¤‚ à¤•à¥‡ à¤¸à¤¾à¤®à¤¾à¤¨à¥à¤¯ à¤¸à¤µà¤¾à¤²à¥‹à¤‚ à¤•à¥‡ à¤›à¥‹à¤Ÿà¥‡ à¤”à¤° à¤¸à¤¾à¤« à¤œà¤µà¤¾à¤¬à¥¤"
   ),
-  stepCounter: localized("Step", "चरण"),
-  of: localized("of", "में से"),
+  stepCounter: localized("Step", "à¤šà¤°à¤£"),
+  of: localized("of", "à¤®à¥‡à¤‚ à¤¸à¥‡"),
   speechUnavailable: localized(
     "This browser does not support text-to-speech.",
-    "यह ब्राउज़र टेक्स्ट को आवाज में पढ़ने का समर्थन नहीं करता।"
+    "à¤¯à¤¹ à¤¬à¥à¤°à¤¾à¤‰à¤œà¤¼à¤° à¤Ÿà¥‡à¤•à¥à¤¸à¥à¤Ÿ à¤•à¥‹ à¤†à¤µà¤¾à¤œ à¤®à¥‡à¤‚ à¤ªà¤¢à¤¼à¤¨à¥‡ à¤•à¤¾ à¤¸à¤®à¤°à¥à¤¥à¤¨ à¤¨à¤¹à¥€à¤‚ à¤•à¤°à¤¤à¤¾à¥¤"
   ),
-  speechStarted: localized("Reading aloud started.", "आवाज में पढ़ना शुरू हुआ।"),
-  speechStartedGoogle: localized("Google voice playback started.", "Google आवाज चलना शुरू हुआ।"),
-  speechStartedBrowser: localized("Browser voice playback started.", "ब्राउज़र आवाज चलना शुरू हुआ।"),
-  speechStopped: localized("Audio stopped.", "ऑडियो बंद हुआ।"),
+  speechStarted: localized("Reading aloud started.", "à¤†à¤µà¤¾à¤œ à¤®à¥‡à¤‚ à¤ªà¤¢à¤¼à¤¨à¤¾ à¤¶à¥à¤°à¥‚ à¤¹à¥à¤†à¥¤"),
+  speechStartedGoogle: localized("Google voice playback started.", "Google à¤†à¤µà¤¾à¤œ à¤šà¤²à¤¨à¤¾ à¤¶à¥à¤°à¥‚ à¤¹à¥à¤†à¥¤"),
+  speechStartedBrowser: localized("Browser voice playback started.", "à¤¬à¥à¤°à¤¾à¤‰à¤œà¤¼à¤° à¤†à¤µà¤¾à¤œ à¤šà¤²à¤¨à¤¾ à¤¶à¥à¤°à¥‚ à¤¹à¥à¤†à¥¤"),
+  speechStopped: localized("Audio stopped.", "à¤‘à¤¡à¤¿à¤¯à¥‹ à¤¬à¤‚à¤¦ à¤¹à¥à¤†à¥¤"),
   speechFallbackBrowser: localized(
     "Google voice was not available, so browser voice was used instead.",
-    "Google आवाज उपलब्ध नहीं थी, इसलिए ब्राउज़र आवाज का उपयोग किया गया।"
+    "Google à¤†à¤µà¤¾à¤œ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¨à¤¹à¥€à¤‚ à¤¥à¥€, à¤‡à¤¸à¤²à¤¿à¤ à¤¬à¥à¤°à¤¾à¤‰à¤œà¤¼à¤° à¤†à¤µà¤¾à¤œ à¤•à¤¾ à¤‰à¤ªà¤¯à¥‹à¤— à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾à¥¤"
   ),
-  languageChanged: localized("Language changed.", "भाषा बदल गई है।"),
-  textSmaller: localized("Text size decreased.", "अक्षर आकार छोटा किया गया।"),
-  textLarger: localized("Text size increased.", "अक्षर आकार बड़ा किया गया।"),
-  contrastChanged: localized("Contrast setting changed.", "कॉन्ट्रास्ट सेटिंग बदली गई।"),
+  languageChanged: localized("Language changed.", "à¤­à¤¾à¤·à¤¾ à¤¬à¤¦à¤² à¤—à¤ˆ à¤¹à¥ˆà¥¤"),
+  textSmaller: localized("Text size decreased.", "à¤…à¤•à¥à¤·à¤° à¤†à¤•à¤¾à¤° à¤›à¥‹à¤Ÿà¤¾ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾à¥¤"),
+  textLarger: localized("Text size increased.", "à¤…à¤•à¥à¤·à¤° à¤†à¤•à¤¾à¤° à¤¬à¤¡à¤¼à¤¾ à¤•à¤¿à¤¯à¤¾ à¤—à¤¯à¤¾à¥¤"),
+  contrastChanged: localized("Contrast setting changed.", "à¤•à¥‰à¤¨à¥à¤Ÿà¥à¤°à¤¾à¤¸à¥à¤Ÿ à¤¸à¥‡à¤Ÿà¤¿à¤‚à¤— à¤¬à¤¦à¤²à¥€ à¤—à¤ˆà¥¤"),
 };
 
 const steps = [
   {
-    icon: "🪪",
-    title: localized("Voter Registration", "मतदाता पंजीकरण"),
+    icon: "ðŸªª",
+    title: localized("Voter Registration", "à¤®à¤¤à¤¦à¤¾à¤¤à¤¾ à¤ªà¤‚à¤œà¥€à¤•à¤°à¤£"),
     description: localized(
       "Your name must be on the voter list before election day. It is best to check early so there is time to correct mistakes.",
-      "मतदान दिवस से पहले आपका नाम मतदाता सूची में होना चाहिए। गलती सुधारने का समय मिले, इसलिए पहले से जांच करना बेहतर है।"
+      "à¤®à¤¤à¤¦à¤¾à¤¨ à¤¦à¤¿à¤µà¤¸ à¤¸à¥‡ à¤ªà¤¹à¤²à¥‡ à¤†à¤ªà¤•à¤¾ à¤¨à¤¾à¤® à¤®à¤¤à¤¦à¤¾à¤¤à¤¾ à¤¸à¥‚à¤šà¥€ à¤®à¥‡à¤‚ à¤¹à¥‹à¤¨à¤¾ à¤šà¤¾à¤¹à¤¿à¤à¥¤ à¤—à¤²à¤¤à¥€ à¤¸à¥à¤§à¤¾à¤°à¤¨à¥‡ à¤•à¤¾ à¤¸à¤®à¤¯ à¤®à¤¿à¤²à¥‡, à¤‡à¤¸à¤²à¤¿à¤ à¤ªà¤¹à¤²à¥‡ à¤¸à¥‡ à¤œà¤¾à¤‚à¤š à¤•à¤°à¤¨à¤¾ à¤¬à¥‡à¤¹à¤¤à¤° à¤¹à¥ˆà¥¤"
     ),
     helper: localized(
       "Keep your basic details ready, such as name, address, age proof, and any form your local authority asks for.",
-      "अपना नाम, पता, आयु प्रमाण और स्थानीय प्राधिकरण द्वारा मांगे गए फॉर्म जैसी जरूरी जानकारी तैयार रखें।"
+      "à¤…à¤ªà¤¨à¤¾ à¤¨à¤¾à¤®, à¤ªà¤¤à¤¾, à¤†à¤¯à¥ à¤ªà¥à¤°à¤®à¤¾à¤£ à¤”à¤° à¤¸à¥à¤¥à¤¾à¤¨à¥€à¤¯ à¤ªà¥à¤°à¤¾à¤§à¤¿à¤•à¤°à¤£ à¤¦à¥à¤µà¤¾à¤°à¤¾ à¤®à¤¾à¤‚à¤—à¥‡ à¤—à¤ à¤«à¥‰à¤°à¥à¤® à¤œà¥ˆà¤¸à¥€ à¤œà¤°à¥‚à¤°à¥€ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤¤à¥ˆà¤¯à¤¾à¤° à¤°à¤–à¥‡à¤‚à¥¤"
     ),
   },
   {
-    icon: "📄",
-    title: localized("Candidate Nomination", "उम्मीदवार नामांकन"),
+    icon: "ðŸ“„",
+    title: localized("Candidate Nomination", "à¤‰à¤®à¥à¤®à¥€à¤¦à¤µà¤¾à¤° à¤¨à¤¾à¤®à¤¾à¤‚à¤•à¤¨"),
     description: localized(
       "People who want to contest the election submit forms and documents. Election officials check whether each application meets the rules.",
-      "जो लोग चुनाव लड़ना चाहते हैं, वे फॉर्म और दस्तावेज जमा करते हैं। चुनाव अधिकारी जांच करते हैं कि आवेदन नियमों के अनुसार है या नहीं।"
+      "à¤œà¥‹ à¤²à¥‹à¤— à¤šà¥à¤¨à¤¾à¤µ à¤²à¤¡à¤¼à¤¨à¤¾ à¤šà¤¾à¤¹à¤¤à¥‡ à¤¹à¥ˆà¤‚, à¤µà¥‡ à¤«à¥‰à¤°à¥à¤® à¤”à¤° à¤¦à¤¸à¥à¤¤à¤¾à¤µà¥‡à¤œ à¤œà¤®à¤¾ à¤•à¤°à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤ à¤šà¥à¤¨à¤¾à¤µ à¤…à¤§à¤¿à¤•à¤¾à¤°à¥€ à¤œà¤¾à¤‚à¤š à¤•à¤°à¤¤à¥‡ à¤¹à¥ˆà¤‚ à¤•à¤¿ à¤†à¤µà¥‡à¤¦à¤¨ à¤¨à¤¿à¤¯à¤®à¥‹à¤‚ à¤•à¥‡ à¤…à¤¨à¥à¤¸à¤¾à¤° à¤¹à¥ˆ à¤¯à¤¾ à¤¨à¤¹à¥€à¤‚à¥¤"
     ),
     helper: localized(
       "This step helps make sure the final list of candidates is official and verified.",
-      "यह चरण सुनिश्चित करता है कि अंतिम उम्मीदवार सूची आधिकारिक और जांची हुई हो।"
+      "à¤¯à¤¹ à¤šà¤°à¤£ à¤¸à¥à¤¨à¤¿à¤¶à¥à¤šà¤¿à¤¤ à¤•à¤°à¤¤à¤¾ à¤¹à¥ˆ à¤•à¤¿ à¤…à¤‚à¤¤à¤¿à¤® à¤‰à¤®à¥à¤®à¥€à¤¦à¤µà¤¾à¤° à¤¸à¥‚à¤šà¥€ à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤”à¤° à¤œà¤¾à¤‚à¤šà¥€ à¤¹à¥à¤ˆ à¤¹à¥‹à¥¤"
     ),
   },
   {
-    icon: "📣",
-    title: localized("Campaigning", "प्रचार"),
+    icon: "ðŸ“£",
+    title: localized("Campaigning", "à¤ªà¥à¤°à¤šà¤¾à¤°"),
     description: localized(
       "Candidates meet voters and explain their plans. Campaigning is allowed only within election rules about speech, money, and public conduct.",
-      "उम्मीदवार मतदाताओं से मिलते हैं और अपनी योजनाएं बताते हैं। प्रचार चुनाव नियमों के भीतर ही किया जा सकता है, जैसे भाषण, खर्च और सार्वजनिक व्यवहार।"
+      "à¤‰à¤®à¥à¤®à¥€à¤¦à¤µà¤¾à¤° à¤®à¤¤à¤¦à¤¾à¤¤à¤¾à¤“à¤‚ à¤¸à¥‡ à¤®à¤¿à¤²à¤¤à¥‡ à¤¹à¥ˆà¤‚ à¤”à¤° à¤…à¤ªà¤¨à¥€ à¤¯à¥‹à¤œà¤¨à¤¾à¤à¤‚ à¤¬à¤¤à¤¾à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤ à¤ªà¥à¤°à¤šà¤¾à¤° à¤šà¥à¤¨à¤¾à¤µ à¤¨à¤¿à¤¯à¤®à¥‹à¤‚ à¤•à¥‡ à¤­à¥€à¤¤à¤° à¤¹à¥€ à¤•à¤¿à¤¯à¤¾ à¤œà¤¾ à¤¸à¤•à¤¤à¤¾ à¤¹à¥ˆ, à¤œà¥ˆà¤¸à¥‡ à¤­à¤¾à¤·à¤£, à¤–à¤°à¥à¤š à¤”à¤° à¤¸à¤¾à¤°à¥à¤µà¤œà¤¨à¤¿à¤• à¤µà¥à¤¯à¤µà¤¹à¤¾à¤°à¥¤"
     ),
     helper: localized(
       "Use this time to compare ideas calmly and listen for clear promises that matter to your daily life.",
-      "इस समय अलग-अलग विचारों की शांत मन से तुलना करें और उन वादों पर ध्यान दें जो आपके रोजमर्रा जीवन से जुड़ते हैं।"
+      "à¤‡à¤¸ à¤¸à¤®à¤¯ à¤…à¤²à¤—-à¤…à¤²à¤— à¤µà¤¿à¤šà¤¾à¤°à¥‹à¤‚ à¤•à¥€ à¤¶à¤¾à¤‚à¤¤ à¤®à¤¨ à¤¸à¥‡ à¤¤à¥à¤²à¤¨à¤¾ à¤•à¤°à¥‡à¤‚ à¤”à¤° à¤‰à¤¨ à¤µà¤¾à¤¦à¥‹à¤‚ à¤ªà¤° à¤§à¥à¤¯à¤¾à¤¨ à¤¦à¥‡à¤‚ à¤œà¥‹ à¤†à¤ªà¤•à¥‡ à¤°à¥‹à¤œà¤®à¤°à¥à¤°à¤¾ à¤œà¥€à¤µà¤¨ à¤¸à¥‡ à¤œà¥à¤¡à¤¼à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤"
     ),
   },
   {
-    icon: "🗳️",
-    title: localized("Voting Day", "मतदान दिवस"),
+    icon: "ðŸ—³ï¸",
+    title: localized("Voting Day", "à¤®à¤¤à¤¦à¤¾à¤¨ à¤¦à¤¿à¤µà¤¸"),
     description: localized(
       "Go to your polling booth, show accepted identification, and cast your vote. Your choice stays secret.",
-      "अपने मतदान केंद्र पर जाएं, मान्य पहचान पत्र दिखाएं और वोट डालें। आपका वोट गुप्त रहता है।"
+      "à¤…à¤ªà¤¨à¥‡ à¤®à¤¤à¤¦à¤¾à¤¨ à¤•à¥‡à¤‚à¤¦à¥à¤° à¤ªà¤° à¤œà¤¾à¤à¤‚, à¤®à¤¾à¤¨à¥à¤¯ à¤ªà¤¹à¤šà¤¾à¤¨ à¤ªà¤¤à¥à¤° à¤¦à¤¿à¤–à¤¾à¤à¤‚ à¤”à¤° à¤µà¥‹à¤Ÿ à¤¡à¤¾à¤²à¥‡à¤‚à¥¤ à¤†à¤ªà¤•à¤¾ à¤µà¥‹à¤Ÿ à¤—à¥à¤ªà¥à¤¤ à¤°à¤¹à¤¤à¤¾ à¤¹à¥ˆà¥¤"
     ),
     helper: localized(
       "Check your booth location in advance, go at a comfortable time, and ask polling staff for help if you need assistance.",
-      "पहले से अपना मतदान केंद्र देख लें, आरामदायक समय पर जाएं और जरूरत हो तो मतदान कर्मियों से मदद मांगें।"
+      "à¤ªà¤¹à¤²à¥‡ à¤¸à¥‡ à¤…à¤ªà¤¨à¤¾ à¤®à¤¤à¤¦à¤¾à¤¨ à¤•à¥‡à¤‚à¤¦à¥à¤° à¤¦à¥‡à¤– à¤²à¥‡à¤‚, à¤†à¤°à¤¾à¤®à¤¦à¤¾à¤¯à¤• à¤¸à¤®à¤¯ à¤ªà¤° à¤œà¤¾à¤à¤‚ à¤”à¤° à¤œà¤°à¥‚à¤°à¤¤ à¤¹à¥‹ à¤¤à¥‹ à¤®à¤¤à¤¦à¤¾à¤¨ à¤•à¤°à¥à¤®à¤¿à¤¯à¥‹à¤‚ à¤¸à¥‡ à¤®à¤¦à¤¦ à¤®à¤¾à¤‚à¤—à¥‡à¤‚à¥¤"
     ),
   },
   {
-    icon: "📊",
-    title: localized("Vote Counting", "वोट गिनती"),
+    icon: "ðŸ“Š",
+    title: localized("Vote Counting", "à¤µà¥‹à¤Ÿ à¤—à¤¿à¤¨à¤¤à¥€"),
     description: localized(
       "After voting ends, officials count valid votes carefully. Observers and authorized agents may watch the process.",
-      "मतदान खत्म होने के बाद अधिकारी मान्य वोटों की सावधानी से गिनती करते हैं। पर्यवेक्षक और अधिकृत प्रतिनिधि इस प्रक्रिया को देख सकते हैं।"
+      "à¤®à¤¤à¤¦à¤¾à¤¨ à¤–à¤¤à¥à¤® à¤¹à¥‹à¤¨à¥‡ à¤•à¥‡ à¤¬à¤¾à¤¦ à¤…à¤§à¤¿à¤•à¤¾à¤°à¥€ à¤®à¤¾à¤¨à¥à¤¯ à¤µà¥‹à¤Ÿà¥‹à¤‚ à¤•à¥€ à¤¸à¤¾à¤µà¤§à¤¾à¤¨à¥€ à¤¸à¥‡ à¤—à¤¿à¤¨à¤¤à¥€ à¤•à¤°à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤ à¤ªà¤°à¥à¤¯à¤µà¥‡à¤•à¥à¤·à¤• à¤”à¤° à¤…à¤§à¤¿à¤•à¥ƒà¤¤ à¤ªà¥à¤°à¤¤à¤¿à¤¨à¤¿à¤§à¤¿ à¤‡à¤¸ à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾ à¤•à¥‹ à¤¦à¥‡à¤– à¤¸à¤•à¤¤à¥‡ à¤¹à¥ˆà¤‚à¥¤"
     ),
     helper: localized(
       "Counting is meant to be orderly and transparent so people can trust the result.",
-      "गिनती की प्रक्रिया व्यवस्थित और पारदर्शी रखी जाती है ताकि लोग परिणाम पर भरोसा कर सकें।"
+      "à¤—à¤¿à¤¨à¤¤à¥€ à¤•à¥€ à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾ à¤µà¥à¤¯à¤µà¤¸à¥à¤¥à¤¿à¤¤ à¤”à¤° à¤ªà¤¾à¤°à¤¦à¤°à¥à¤¶à¥€ à¤°à¤–à¥€ à¤œà¤¾à¤¤à¥€ à¤¹à¥ˆ à¤¤à¤¾à¤•à¤¿ à¤²à¥‹à¤— à¤ªà¤°à¤¿à¤£à¤¾à¤® à¤ªà¤° à¤­à¤°à¥‹à¤¸à¤¾ à¤•à¤° à¤¸à¤•à¥‡à¤‚à¥¤"
     ),
   },
   {
-    icon: "🏁",
-    title: localized("Results Declaration", "परिणाम घोषणा"),
+    icon: "ðŸ",
+    title: localized("Results Declaration", "à¤ªà¤°à¤¿à¤£à¤¾à¤® à¤˜à¥‹à¤·à¤£à¤¾"),
     description: localized(
       "When counting is complete, the official result is announced publicly. The winner is declared according to the election rules.",
-      "गिनती पूरी होने पर आधिकारिक परिणाम सार्वजनिक रूप से घोषित किया जाता है। चुनाव नियमों के अनुसार विजेता घोषित होता है।"
+      "à¤—à¤¿à¤¨à¤¤à¥€ à¤ªà¥‚à¤°à¥€ à¤¹à¥‹à¤¨à¥‡ à¤ªà¤° à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤ªà¤°à¤¿à¤£à¤¾à¤® à¤¸à¤¾à¤°à¥à¤µà¤œà¤¨à¤¿à¤• à¤°à¥‚à¤ª à¤¸à¥‡ à¤˜à¥‹à¤·à¤¿à¤¤ à¤•à¤¿à¤¯à¤¾ à¤œà¤¾à¤¤à¤¾ à¤¹à¥ˆà¥¤ à¤šà¥à¤¨à¤¾à¤µ à¤¨à¤¿à¤¯à¤®à¥‹à¤‚ à¤•à¥‡ à¤…à¤¨à¥à¤¸à¤¾à¤° à¤µà¤¿à¤œà¥‡à¤¤à¤¾ à¤˜à¥‹à¤·à¤¿à¤¤ à¤¹à¥‹à¤¤à¤¾ à¤¹à¥ˆà¥¤"
     ),
     helper: localized(
       "Wait for official updates from trusted election sources instead of relying on rumors or forwarded messages.",
-      "अफवाहों या फॉरवर्ड संदेशों पर नहीं, बल्कि आधिकारिक चुनाव स्रोतों की जानकारी पर भरोसा करें।"
+      "à¤…à¤«à¤µà¤¾à¤¹à¥‹à¤‚ à¤¯à¤¾ à¤«à¥‰à¤°à¤µà¤°à¥à¤¡ à¤¸à¤‚à¤¦à¥‡à¤¶à¥‹à¤‚ à¤ªà¤° à¤¨à¤¹à¥€à¤‚, à¤¬à¤²à¥à¤•à¤¿ à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤šà¥à¤¨à¤¾à¤µ à¤¸à¥à¤°à¥‹à¤¤à¥‹à¤‚ à¤•à¥€ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤ªà¤° à¤­à¤°à¥‹à¤¸à¤¾ à¤•à¤°à¥‡à¤‚à¥¤"
     ),
   },
 ];
 
 const guidanceItems = [
   {
-    title: localized("How to register", "पंजीकरण कैसे करें"),
+    title: localized("How to register", "à¤ªà¤‚à¤œà¥€à¤•à¤°à¤£ à¤•à¥ˆà¤¸à¥‡ à¤•à¤°à¥‡à¤‚"),
     points: [
-      localized("Check whether your name is already on the voter list.", "जांच करें कि आपका नाम पहले से मतदाता सूची में है या नहीं।"),
+      localized("Check whether your name is already on the voter list.", "à¤œà¤¾à¤‚à¤š à¤•à¤°à¥‡à¤‚ à¤•à¤¿ à¤†à¤ªà¤•à¤¾ à¤¨à¤¾à¤® à¤ªà¤¹à¤²à¥‡ à¤¸à¥‡ à¤®à¤¤à¤¦à¤¾à¤¤à¤¾ à¤¸à¥‚à¤šà¥€ à¤®à¥‡à¤‚ à¤¹à¥ˆ à¤¯à¤¾ à¤¨à¤¹à¥€à¤‚à¥¤"),
       localized(
         "If needed, fill the required form and submit proof of identity and address.",
-        "जरूरत हो तो जरूरी फॉर्म भरें और पहचान व पते का प्रमाण जमा करें।"
+        "à¤œà¤°à¥‚à¤°à¤¤ à¤¹à¥‹ à¤¤à¥‹ à¤œà¤°à¥‚à¤°à¥€ à¤«à¥‰à¤°à¥à¤® à¤­à¤°à¥‡à¤‚ à¤”à¤° à¤ªà¤¹à¤šà¤¾à¤¨ à¤µ à¤ªà¤¤à¥‡ à¤•à¤¾ à¤ªà¥à¤°à¤®à¤¾à¤£ à¤œà¤®à¤¾ à¤•à¤°à¥‡à¤‚à¥¤"
       ),
     ],
   },
   {
-    title: localized("What to carry", "क्या साथ ले जाएं"),
+    title: localized("What to carry", "à¤•à¥à¤¯à¤¾ à¤¸à¤¾à¤¥ à¤²à¥‡ à¤œà¤¾à¤à¤‚"),
     points: [
       localized(
         "Carry an accepted photo ID and any voter slip or reference note you have.",
-        "मान्य फोटो पहचान पत्र और आपके पास हो तो वोटर स्लिप या संदर्भ पर्ची साथ रखें।"
+        "à¤®à¤¾à¤¨à¥à¤¯ à¤«à¥‹à¤Ÿà¥‹ à¤ªà¤¹à¤šà¤¾à¤¨ à¤ªà¤¤à¥à¤° à¤”à¤° à¤†à¤ªà¤•à¥‡ à¤ªà¤¾à¤¸ à¤¹à¥‹ à¤¤à¥‹ à¤µà¥‹à¤Ÿà¤° à¤¸à¥à¤²à¤¿à¤ª à¤¯à¤¾ à¤¸à¤‚à¤¦à¤°à¥à¤­ à¤ªà¤°à¥à¤šà¥€ à¤¸à¤¾à¤¥ à¤°à¤–à¥‡à¤‚à¥¤"
       ),
       localized(
         "If you use spectacles, hearing aids, or a walking support, take them with you.",
-        "यदि आप चश्मा, सुनने की मशीन या चलने का सहारा लेते हैं, तो उसे साथ ले जाएं।"
+        "à¤¯à¤¦à¤¿ à¤†à¤ª à¤šà¤¶à¥à¤®à¤¾, à¤¸à¥à¤¨à¤¨à¥‡ à¤•à¥€ à¤®à¤¶à¥€à¤¨ à¤¯à¤¾ à¤šà¤²à¤¨à¥‡ à¤•à¤¾ à¤¸à¤¹à¤¾à¤°à¤¾ à¤²à¥‡à¤¤à¥‡ à¤¹à¥ˆà¤‚, à¤¤à¥‹ à¤‰à¤¸à¥‡ à¤¸à¤¾à¤¥ à¤²à¥‡ à¤œà¤¾à¤à¤‚à¥¤"
       ),
     ],
   },
   {
-    title: localized("How to vote", "वोट कैसे दें"),
+    title: localized("How to vote", "à¤µà¥‹à¤Ÿ à¤•à¥ˆà¤¸à¥‡ à¤¦à¥‡à¤‚"),
     points: [
       localized(
         "Find your polling desk, confirm your name, and follow the instructions given there.",
-        "अपनी मतदान डेस्क खोजें, अपना नाम जांचें और वहां दिए गए निर्देशों का पालन करें।"
+        "à¤…à¤ªà¤¨à¥€ à¤®à¤¤à¤¦à¤¾à¤¨ à¤¡à¥‡à¤¸à¥à¤• à¤–à¥‹à¤œà¥‡à¤‚, à¤…à¤ªà¤¨à¤¾ à¤¨à¤¾à¤® à¤œà¤¾à¤‚à¤šà¥‡à¤‚ à¤”à¤° à¤µà¤¹à¤¾à¤‚ à¤¦à¤¿à¤ à¤—à¤ à¤¨à¤¿à¤°à¥à¤¦à¥‡à¤¶à¥‹à¤‚ à¤•à¤¾ à¤ªà¤¾à¤²à¤¨ à¤•à¤°à¥‡à¤‚à¥¤"
       ),
       localized(
         "Press the button or mark the ballot for your chosen candidate, then complete the final step as guided by staff.",
-        "अपने चुने हुए उम्मीदवार के लिए बटन दबाएं या मतपत्र पर निशान लगाएं, फिर कर्मचारियों के बताए अंतिम चरण को पूरा करें।"
+        "à¤…à¤ªà¤¨à¥‡ à¤šà¥à¤¨à¥‡ à¤¹à¥à¤ à¤‰à¤®à¥à¤®à¥€à¤¦à¤µà¤¾à¤° à¤•à¥‡ à¤²à¤¿à¤ à¤¬à¤Ÿà¤¨ à¤¦à¤¬à¤¾à¤à¤‚ à¤¯à¤¾ à¤®à¤¤à¤ªà¤¤à¥à¤° à¤ªà¤° à¤¨à¤¿à¤¶à¤¾à¤¨ à¤²à¤—à¤¾à¤à¤‚, à¤«à¤¿à¤° à¤•à¤°à¥à¤®à¤šà¤¾à¤°à¤¿à¤¯à¥‹à¤‚ à¤•à¥‡ à¤¬à¤¤à¤¾à¤ à¤…à¤‚à¤¤à¤¿à¤® à¤šà¤°à¤£ à¤•à¥‹ à¤ªà¥‚à¤°à¤¾ à¤•à¤°à¥‡à¤‚à¥¤"
       ),
     ],
   },
 ];
 
 const candidates = [
-  { id: "candidate-a", name: "Asha Verma", label: localized("Candidate A", "उम्मीदवार A"), note: localized("Practice choice only", "केवल अभ्यास विकल्प") },
-  { id: "candidate-b", name: "Rohan Mehta", label: localized("Candidate B", "उम्मीदवार B"), note: localized("Practice choice only", "केवल अभ्यास विकल्प") },
-  { id: "candidate-c", name: "Nazia Khan", label: localized("Candidate C", "उम्मीदवार C"), note: localized("Practice choice only", "केवल अभ्यास विकल्प") },
+  { id: "candidate-a", name: "Asha Verma", label: localized("Candidate A", "à¤‰à¤®à¥à¤®à¥€à¤¦à¤µà¤¾à¤° A"), note: localized("Practice choice only", "à¤•à¥‡à¤µà¤² à¤…à¤­à¥à¤¯à¤¾à¤¸ à¤µà¤¿à¤•à¤²à¥à¤ª") },
+  { id: "candidate-b", name: "Rohan Mehta", label: localized("Candidate B", "à¤‰à¤®à¥à¤®à¥€à¤¦à¤µà¤¾à¤° B"), note: localized("Practice choice only", "à¤•à¥‡à¤µà¤² à¤…à¤­à¥à¤¯à¤¾à¤¸ à¤µà¤¿à¤•à¤²à¥à¤ª") },
+  { id: "candidate-c", name: "Nazia Khan", label: localized("Candidate C", "à¤‰à¤®à¥à¤®à¥€à¤¦à¤µà¤¾à¤° C"), note: localized("Practice choice only", "à¤•à¥‡à¤µà¤² à¤…à¤­à¥à¤¯à¤¾à¤¸ à¤µà¤¿à¤•à¤²à¥à¤ª") },
 ];
 
 const quizQuestions = [
   {
     question: localized(
       "When is the best time to check whether your name is on the voter list?",
-      "मतदाता सूची में अपना नाम जांचने का सबसे अच्छा समय कब है?"
+      "à¤®à¤¤à¤¦à¤¾à¤¤à¤¾ à¤¸à¥‚à¤šà¥€ à¤®à¥‡à¤‚ à¤…à¤ªà¤¨à¤¾ à¤¨à¤¾à¤® à¤œà¤¾à¤‚à¤šà¤¨à¥‡ à¤•à¤¾ à¤¸à¤¬à¤¸à¥‡ à¤…à¤šà¥à¤›à¤¾ à¤¸à¤®à¤¯ à¤•à¤¬ à¤¹à¥ˆ?"
     ),
     options: [
-      localized("Only after the results are announced", "केवल परिणाम आने के बाद"),
-      localized("Before election day", "मतदान दिवस से पहले"),
-      localized("There is no need to check", "जांच करने की जरूरत नहीं है"),
+      localized("Only after the results are announced", "à¤•à¥‡à¤µà¤² à¤ªà¤°à¤¿à¤£à¤¾à¤® à¤†à¤¨à¥‡ à¤•à¥‡ à¤¬à¤¾à¤¦"),
+      localized("Before election day", "à¤®à¤¤à¤¦à¤¾à¤¨ à¤¦à¤¿à¤µà¤¸ à¤¸à¥‡ à¤ªà¤¹à¤²à¥‡"),
+      localized("There is no need to check", "à¤œà¤¾à¤‚à¤š à¤•à¤°à¤¨à¥‡ à¤•à¥€ à¤œà¤°à¥‚à¤°à¤¤ à¤¨à¤¹à¥€à¤‚ à¤¹à¥ˆ"),
     ],
     correctIndex: 1,
   },
   {
-    question: localized("What should you usually carry on voting day?", "मतदान दिवस पर आम तौर पर क्या साथ ले जाना चाहिए?"),
+    question: localized("What should you usually carry on voting day?", "à¤®à¤¤à¤¦à¤¾à¤¨ à¤¦à¤¿à¤µà¤¸ à¤ªà¤° à¤†à¤® à¤¤à¥Œà¤° à¤ªà¤° à¤•à¥à¤¯à¤¾ à¤¸à¤¾à¤¥ à¤²à¥‡ à¤œà¤¾à¤¨à¤¾ à¤šà¤¾à¤¹à¤¿à¤?"),
     options: [
-      localized("An accepted photo ID", "मान्य फोटो पहचान पत्र"),
-      localized("A school notebook", "स्कूल की कॉपी"),
-      localized("A shopping bill", "खरीदारी की रसीद"),
+      localized("An accepted photo ID", "à¤®à¤¾à¤¨à¥à¤¯ à¤«à¥‹à¤Ÿà¥‹ à¤ªà¤¹à¤šà¤¾à¤¨ à¤ªà¤¤à¥à¤°"),
+      localized("A school notebook", "à¤¸à¥à¤•à¥‚à¤² à¤•à¥€ à¤•à¥‰à¤ªà¥€"),
+      localized("A shopping bill", "à¤–à¤°à¥€à¤¦à¤¾à¤°à¥€ à¤•à¥€ à¤°à¤¸à¥€à¤¦"),
     ],
     correctIndex: 0,
   },
   {
-    question: localized("Is your vote meant to stay private?", "क्या आपका वोट निजी और गुप्त रहना चाहिए?"),
+    question: localized("Is your vote meant to stay private?", "à¤•à¥à¤¯à¤¾ à¤†à¤ªà¤•à¤¾ à¤µà¥‹à¤Ÿ à¤¨à¤¿à¤œà¥€ à¤”à¤° à¤—à¥à¤ªà¥à¤¤ à¤°à¤¹à¤¨à¤¾ à¤šà¤¾à¤¹à¤¿à¤?"),
     options: [
-      localized("Yes, your choice is secret", "हां, आपका चुनाव गुप्त रहता है"),
-      localized("No, everyone should know", "नहीं, सबको पता होना चाहिए"),
-      localized("Only your neighbors should know", "केवल पड़ोसियों को पता होना चाहिए"),
+      localized("Yes, your choice is secret", "à¤¹à¤¾à¤‚, à¤†à¤ªà¤•à¤¾ à¤šà¥à¤¨à¤¾à¤µ à¤—à¥à¤ªà¥à¤¤ à¤°à¤¹à¤¤à¤¾ à¤¹à¥ˆ"),
+      localized("No, everyone should know", "à¤¨à¤¹à¥€à¤‚, à¤¸à¤¬à¤•à¥‹ à¤ªà¤¤à¤¾ à¤¹à¥‹à¤¨à¤¾ à¤šà¤¾à¤¹à¤¿à¤"),
+      localized("Only your neighbors should know", "à¤•à¥‡à¤µà¤² à¤ªà¤¡à¤¼à¥‹à¤¸à¤¿à¤¯à¥‹à¤‚ à¤•à¥‹ à¤ªà¤¤à¤¾ à¤¹à¥‹à¤¨à¤¾ à¤šà¤¾à¤¹à¤¿à¤"),
     ],
     correctIndex: 0,
   },
@@ -301,57 +309,62 @@ const quizQuestions = [
 
 const faqs = [
   {
-    question: localized("What if I forget my ID?", "अगर मैं पहचान पत्र भूल जाऊं तो क्या होगा?"),
+    question: localized("What if I forget my ID?", "à¤…à¤—à¤° à¤®à¥ˆà¤‚ à¤ªà¤¹à¤šà¤¾à¤¨ à¤ªà¤¤à¥à¤° à¤­à¥‚à¤² à¤œà¤¾à¤Šà¤‚ à¤¤à¥‹ à¤•à¥à¤¯à¤¾ à¤¹à¥‹à¤—à¤¾?"),
     answer: localized(
       "Ask the polling staff what other accepted proof is allowed in your area. Rules can differ, so official guidance is important.",
-      "मतदान कर्मियों से पूछें कि आपके क्षेत्र में कौन सा दूसरा मान्य प्रमाण स्वीकार है। नियम अलग हो सकते हैं, इसलिए आधिकारिक जानकारी जरूरी है।"
+      "à¤®à¤¤à¤¦à¤¾à¤¨ à¤•à¤°à¥à¤®à¤¿à¤¯à¥‹à¤‚ à¤¸à¥‡ à¤ªà¥‚à¤›à¥‡à¤‚ à¤•à¤¿ à¤†à¤ªà¤•à¥‡ à¤•à¥à¤·à¥‡à¤¤à¥à¤° à¤®à¥‡à¤‚ à¤•à¥Œà¤¨ à¤¸à¤¾ à¤¦à¥‚à¤¸à¤°à¤¾ à¤®à¤¾à¤¨à¥à¤¯ à¤ªà¥à¤°à¤®à¤¾à¤£ à¤¸à¥à¤µà¥€à¤•à¤¾à¤° à¤¹à¥ˆà¥¤ à¤¨à¤¿à¤¯à¤® à¤…à¤²à¤— à¤¹à¥‹ à¤¸à¤•à¤¤à¥‡ à¤¹à¥ˆà¤‚, à¤‡à¤¸à¤²à¤¿à¤ à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤œà¤°à¥‚à¤°à¥€ à¤¹à¥ˆà¥¤"
     ),
   },
   {
-    question: localized("Where is my polling booth?", "मेरा मतदान केंद्र कहां है?"),
+    question: localized("Where is my polling booth?", "à¤®à¥‡à¤°à¤¾ à¤®à¤¤à¤¦à¤¾à¤¨ à¤•à¥‡à¤‚à¤¦à¥à¤° à¤•à¤¹à¤¾à¤‚ à¤¹à¥ˆ?"),
     answer: localized(
       "Check your voter slip, official election message, or your local election website before you travel.",
-      "यात्रा से पहले अपनी वोटर स्लिप, आधिकारिक चुनाव संदेश या स्थानीय चुनाव वेबसाइट देखें।"
+      "à¤¯à¤¾à¤¤à¥à¤°à¤¾ à¤¸à¥‡ à¤ªà¤¹à¤²à¥‡ à¤…à¤ªà¤¨à¥€ à¤µà¥‹à¤Ÿà¤° à¤¸à¥à¤²à¤¿à¤ª, à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤šà¥à¤¨à¤¾à¤µ à¤¸à¤‚à¤¦à¥‡à¤¶ à¤¯à¤¾ à¤¸à¥à¤¥à¤¾à¤¨à¥€à¤¯ à¤šà¥à¤¨à¤¾à¤µ à¤µà¥‡à¤¬à¤¸à¤¾à¤‡à¤Ÿ à¤¦à¥‡à¤–à¥‡à¤‚à¥¤"
     ),
   },
   {
     question: localized(
       "Can I ask for help if I am elderly or have difficulty walking?",
-      "अगर मैं बुजुर्ग हूं या चलने में दिक्कत है तो क्या मैं मदद मांग सकता हूं?"
+      "à¤…à¤—à¤° à¤®à¥ˆà¤‚ à¤¬à¥à¤œà¥à¤°à¥à¤— à¤¹à¥‚à¤‚ à¤¯à¤¾ à¤šà¤²à¤¨à¥‡ à¤®à¥‡à¤‚ à¤¦à¤¿à¤•à¥à¤•à¤¤ à¤¹à¥ˆ à¤¤à¥‹ à¤•à¥à¤¯à¤¾ à¤®à¥ˆà¤‚ à¤®à¤¦à¤¦ à¤®à¤¾à¤‚à¤— à¤¸à¤•à¤¤à¤¾ à¤¹à¥‚à¤‚?"
     ),
     answer: localized(
       "Yes. Polling staff can guide you, and many places provide support for senior citizens and voters with disabilities.",
-      "हां। मतदान कर्मी आपकी मदद कर सकते हैं, और कई जगह वरिष्ठ नागरिकों व दिव्यांग मतदाताओं के लिए सहायता उपलब्ध होती है।"
+      "à¤¹à¤¾à¤‚à¥¤ à¤®à¤¤à¤¦à¤¾à¤¨ à¤•à¤°à¥à¤®à¥€ à¤†à¤ªà¤•à¥€ à¤®à¤¦à¤¦ à¤•à¤° à¤¸à¤•à¤¤à¥‡ à¤¹à¥ˆà¤‚, à¤”à¤° à¤•à¤ˆ à¤œà¤—à¤¹ à¤µà¤°à¤¿à¤·à¥à¤  à¤¨à¤¾à¤—à¤°à¤¿à¤•à¥‹à¤‚ à¤µ à¤¦à¤¿à¤µà¥à¤¯à¤¾à¤‚à¤— à¤®à¤¤à¤¦à¤¾à¤¤à¤¾à¤“à¤‚ à¤•à¥‡ à¤²à¤¿à¤ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾ à¤‰à¤ªà¤²à¤¬à¥à¤§ à¤¹à¥‹à¤¤à¥€ à¤¹à¥ˆà¥¤"
     ),
   },
   {
     question: localized(
       "Should I trust every election message I receive on my phone?",
-      "क्या मुझे फोन पर मिला हर चुनाव संदेश सच मान लेना चाहिए?"
+      "à¤•à¥à¤¯à¤¾ à¤®à¥à¤à¥‡ à¤«à¥‹à¤¨ à¤ªà¤° à¤®à¤¿à¤²à¤¾ à¤¹à¤° à¤šà¥à¤¨à¤¾à¤µ à¤¸à¤‚à¤¦à¥‡à¤¶ à¤¸à¤š à¤®à¤¾à¤¨ à¤²à¥‡à¤¨à¤¾ à¤šà¤¾à¤¹à¤¿à¤?"
     ),
     answer: localized(
       "No. Use official election sources for important details such as dates, booth location, and ID rules.",
-      "नहीं। तारीख, मतदान केंद्र और पहचान नियम जैसी जरूरी जानकारी के लिए आधिकारिक चुनाव स्रोतों का उपयोग करें।"
+      "à¤¨à¤¹à¥€à¤‚à¥¤ à¤¤à¤¾à¤°à¥€à¤–, à¤®à¤¤à¤¦à¤¾à¤¨ à¤•à¥‡à¤‚à¤¦à¥à¤° à¤”à¤° à¤ªà¤¹à¤šà¤¾à¤¨ à¤¨à¤¿à¤¯à¤® à¤œà¥ˆà¤¸à¥€ à¤œà¤°à¥‚à¤°à¥€ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤•à¥‡ à¤²à¤¿à¤ à¤†à¤§à¤¿à¤•à¤¾à¤°à¤¿à¤• à¤šà¥à¤¨à¤¾à¤µ à¤¸à¥à¤°à¥‹à¤¤à¥‹à¤‚ à¤•à¤¾ à¤‰à¤ªà¤¯à¥‹à¤— à¤•à¤°à¥‡à¤‚à¥¤"
     ),
   },
 ];
 
 const assistantConcerns = [
-  { id: "registration", label: localized("Checking registration", "पंजीकरण जांचना") },
-  { id: "documents", label: localized("What ID or papers to carry", "कौन सा पहचान पत्र या कागज ले जाएं") },
-  { id: "booth", label: localized("Finding the polling booth", "मतदान केंद्र ढूंढना") },
-  { id: "assistance", label: localized("Senior citizen support at the booth", "मतदान केंद्र पर वरिष्ठ सहायता") },
-  { id: "voting_process", label: localized("Understanding the voting process", "मतदान प्रक्रिया समझना") },
-  { id: "trusted_updates", label: localized("How to trust election updates", "चुनाव जानकारी पर भरोसा कैसे करें") },
+  { id: "registration", label: localized("Checking registration", "à¤ªà¤‚à¤œà¥€à¤•à¤°à¤£ à¤œà¤¾à¤‚à¤šà¤¨à¤¾") },
+  { id: "documents", label: localized("What ID or papers to carry", "à¤•à¥Œà¤¨ à¤¸à¤¾ à¤ªà¤¹à¤šà¤¾à¤¨ à¤ªà¤¤à¥à¤° à¤¯à¤¾ à¤•à¤¾à¤—à¤œ à¤²à¥‡ à¤œà¤¾à¤à¤‚") },
+  { id: "booth", label: localized("Finding the polling booth", "à¤®à¤¤à¤¦à¤¾à¤¨ à¤•à¥‡à¤‚à¤¦à¥à¤° à¤¢à¥‚à¤‚à¤¢à¤¨à¤¾") },
+  { id: "assistance", label: localized("Senior citizen support at the booth", "à¤®à¤¤à¤¦à¤¾à¤¨ à¤•à¥‡à¤‚à¤¦à¥à¤° à¤ªà¤° à¤µà¤°à¤¿à¤·à¥à¤  à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾") },
+  { id: "voting_process", label: localized("Understanding the voting process", "à¤®à¤¤à¤¦à¤¾à¤¨ à¤ªà¥à¤°à¤•à¥à¤°à¤¿à¤¯à¤¾ à¤¸à¤®à¤à¤¨à¤¾") },
+  { id: "trusted_updates", label: localized("How to trust election updates", "à¤šà¥à¤¨à¤¾à¤µ à¤œà¤¾à¤¨à¤•à¤¾à¤°à¥€ à¤ªà¤° à¤­à¤°à¥‹à¤¸à¤¾ à¤•à¥ˆà¤¸à¥‡ à¤•à¤°à¥‡à¤‚") },
 ];
 
 const assistantSupportNeeds = [
-  { id: "none", label: localized("No extra support needed", "अतिरिक्त सहायता की जरूरत नहीं") },
-  { id: "vision", label: localized("Vision support", "दृष्टि सहायता") },
-  { id: "hearing", label: localized("Hearing support", "सुनने की सहायता") },
-  { id: "mobility", label: localized("Mobility support", "चलने-फिरने की सहायता") },
-  { id: "helper", label: localized("Family helper or caregiver support", "परिवार या सहायक की मदद") },
+  { id: "none", label: localized("No extra support needed", "à¤…à¤¤à¤¿à¤°à¤¿à¤•à¥à¤¤ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾ à¤•à¥€ à¤œà¤°à¥‚à¤°à¤¤ à¤¨à¤¹à¥€à¤‚") },
+  { id: "vision", label: localized("Vision support", "à¤¦à¥ƒà¤·à¥à¤Ÿà¤¿ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾") },
+  { id: "hearing", label: localized("Hearing support", "à¤¸à¥à¤¨à¤¨à¥‡ à¤•à¥€ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾") },
+  { id: "mobility", label: localized("Mobility support", "à¤šà¤²à¤¨à¥‡-à¤«à¤¿à¤°à¤¨à¥‡ à¤•à¥€ à¤¸à¤¹à¤¾à¤¯à¤¤à¤¾") },
+  { id: "helper", label: localized("Family helper or caregiver support", "à¤ªà¤°à¤¿à¤µà¤¾à¤° à¤¯à¤¾ à¤¸à¤¹à¤¾à¤¯à¤• à¤•à¥€ à¤®à¤¦à¤¦") },
 ];
+
+const googleFeatureLabels = {
+  gemini_personalized_guidance: localized("Gemini personalized guidance", "Gemini à¤µà¥à¤¯à¤•à¥à¤¤à¤¿à¤—à¤¤ à¤®à¤¾à¤°à¥à¤—à¤¦à¤°à¥à¤¶à¤¨"),
+  cloud_tts_audio_ready: localized("Google Cloud voice ready", "Google Cloud à¤†à¤µà¤¾à¤œ à¤¤à¥ˆà¤¯à¤¾à¤°"),
+};
 
 const state = {
   language: "en",
@@ -367,6 +380,7 @@ const state = {
   remoteAudio: null,
   remoteAudioUrl: null,
   assistantAvailability: "local",
+  availableGoogleFeatures: [],
   assistantConcern: "registration",
   assistantSupportNeed: "none",
   assistantQuestion: "",
@@ -424,6 +438,12 @@ const elements = {
   assistantReassurance: document.getElementById("assistantReassurance"),
   assistantNextStepLabel: document.getElementById("assistantNextStepLabel"),
   assistantNextStep: document.getElementById("assistantNextStep"),
+  assistantVerificationLabel: document.getElementById("assistantVerificationLabel"),
+  assistantVerificationTip: document.getElementById("assistantVerificationTip"),
+  assistantFollowUpLabel: document.getElementById("assistantFollowUpLabel"),
+  assistantFollowUpPrompt: document.getElementById("assistantFollowUpPrompt"),
+  assistantGoogleFeaturesTitle: document.getElementById("assistantGoogleFeaturesTitle"),
+  assistantGoogleFeatures: document.getElementById("assistantGoogleFeatures"),
   assistantWhyThisHelp: document.getElementById("assistantWhyThisHelp"),
   guideEyebrow: document.getElementById("guideEyebrow"),
   guideTitle: document.getElementById("guideTitle"),
@@ -521,200 +541,21 @@ function buildAssistantPayload() {
   };
 }
 
-function unusedLegacyAssistantResponse(context) {
-  return buildOfflineAssistantPreview(context);
-  /* Legacy body kept temporarily while the preview helper remains the single source of truth.
-  const stepTitle = t(steps[context.stepIndex].title);
-  const concernLabel = t(assistantConcerns.find((item) => item.id === context.concern).label);
-  const supportLabel = t(assistantSupportNeeds.find((item) => item.id === context.supportNeed).label);
-  const nextStep = context.stepIndex < steps.length - 1 ? t(steps[context.stepIndex + 1].title) : t(copy.faqTitle);
-
-  let summary = state.language === "en"
-    ? `You are looking at ${stepTitle}. For an older voter, the safest approach is to keep this part simple, prepare early, and confirm official details before the day becomes stressful.`
-    : `आप अभी ${stepTitle} देख रहे हैं। एक वरिष्ठ मतदाता के लिए सबसे अच्छा तरीका यह है कि इस हिस्से को सरल रखें, पहले से तैयारी करें और तनाव बढ़ने से पहले आधिकारिक जानकारी की पुष्टि करें।`;
-
-  let reassurance = state.language === "en"
-    ? "You do not need to remember everything at once. One clear step at a time is enough."
-    : "आपको सब कुछ एक साथ याद रखने की जरूरत नहीं है। एक समय में एक साफ कदम ही काफी है।";
-
-  const actions = [];
-
-  switch (context.concern) {
-    case "registration":
-      actions.push(
-        state.language === "en" ? "Check the voter list early so there is time to fix spelling or address errors." : "मतदाता सूची जल्दी जांचें ताकि नाम या पते की गलती सुधारने का समय मिल सके।",
-        state.language === "en" ? "Keep age, address, and identity proof in one easy-to-carry folder." : "आयु, पता और पहचान प्रमाण एक आसान फोल्डर में साथ रखें।",
-        state.language === "en" ? "If a detail is missing, contact the local election office instead of waiting for voting day." : "यदि कोई जानकारी गायब है, तो मतदान दिवस तक इंतजार करने के बजाय स्थानीय चुनाव कार्यालय से संपर्क करें।"
-      );
-      break;
-    case "documents":
-      actions.push(
-        state.language === "en" ? "Carry an accepted photo ID and any voter slip or note that helps you find your record faster." : "मान्य फोटो पहचान पत्र और वोटर स्लिप जैसी कोई भी पर्ची साथ रखें ताकि रिकॉर्ड जल्दी मिले।",
-        state.language === "en" ? "Place your ID in the same bag or pocket you plan to use on voting day." : "अपना पहचान पत्र उसी बैग या जेब में रखें जिसे आप मतदान दिवस पर इस्तेमाल करेंगे।",
-        state.language === "en" ? "If rules differ in your area, confirm accepted documents from official election sources." : "यदि आपके क्षेत्र में नियम अलग हैं, तो आधिकारिक चुनाव स्रोतों से मान्य दस्तावेजों की पुष्टि करें।"
-      );
-      break;
-    case "booth":
-      actions.push(
-        state.language === "en" ? "Check your polling booth location before you leave home." : "घर से निकलने से पहले अपना मतदान केंद्र देख लें।",
-        state.language === "en" ? "Write the booth name or save it in a phone note so you do not need to remember it under stress." : "मतदान केंद्र का नाम लिख लें या फोन नोट में सेव कर लें ताकि तनाव में याद न रखना पड़े।",
-        state.language === "en" ? "Travel at a comfortable time and keep a contact number ready in case you need help on the way." : "आरामदायक समय पर निकलें और जरूरत पड़ने पर मदद के लिए एक संपर्क नंबर तैयार रखें।"
-      );
-      break;
-    case "assistance":
-      actions.push(
-        state.language === "en" ? "Ask polling staff politely about senior citizen support, seating, or queue assistance if available." : "यदि उपलब्ध हो तो मतदान कर्मियों से वरिष्ठ नागरिक सहायता, बैठने की जगह या लाइन में मदद के बारे में विनम्रता से पूछें।",
-        state.language === "en" ? "Keep walking support, hearing aids, or spectacles with you instead of packing them away." : "चलने का सहारा, सुनने की मशीन या चश्मा अपने साथ रखें, अलग रखकर न जाएं।",
-        state.language === "en" ? "If local rules allow, go with a trusted family helper who can help you stay calm and organized." : "यदि स्थानीय नियम अनुमति दें, तो किसी विश्वसनीय परिवार सदस्य के साथ जाएं जो आपको शांत और व्यवस्थित रहने में मदद करे।"
-      );
-      break;
-    case "voting_process":
-      actions.push(
-        state.language === "en" ? "Read or listen to the voting instructions slowly before entering the final voting area." : "अंतिम मतदान क्षेत्र में जाने से पहले मतदान निर्देशों को धीरे-धीरे पढ़ें या सुनें।",
-        state.language === "en" ? "Take your time. You do not need to rush if you need a moment to understand the process." : "आराम से करें। प्रक्रिया समझने के लिए समय चाहिए तो जल्दबाजी की जरूरत नहीं है।",
-        state.language === "en" ? "If something is unclear before the final vote is cast, ask staff to explain the general process again." : "अंतिम वोट डालने से पहले कुछ स्पष्ट न हो तो कर्मचारियों से सामान्य प्रक्रिया फिर समझाने को कहें।"
-      );
-      break;
-    case "trusted_updates":
-    default:
-      actions.push(
-        state.language === "en" ? "Trust official election websites, notices, or helplines for key details." : "मुख्य जानकारी के लिए आधिकारिक चुनाव वेबसाइट, सूचना या हेल्पलाइन पर भरोसा करें।",
-        state.language === "en" ? "Be careful with forwarded messages, rumors, and social media claims." : "फॉरवर्ड संदेश, अफवाहें और सोशल मीडिया दावों से सावधान रहें।",
-        state.language === "en" ? "If you hear conflicting information, write down the question and verify it from one official source." : "यदि अलग-अलग जानकारी मिले, तो सवाल लिख लें और एक आधिकारिक स्रोत से सत्यापित करें।"
-      );
-      break;
-  }
-
-  if (context.supportNeed === "vision") {
-    actions.unshift(
-      state.language === "en" ? "Keep spectacles or a magnifier ready and ask staff to repeat written instructions clearly." : "चश्मा या मैग्निफायर तैयार रखें और कर्मचारियों से लिखे निर्देश साफ-साफ दोहराने को कहें।"
-    );
-    reassurance = state.language === "en"
-      ? "Using larger text and asking for clear instructions is a smart step, not an inconvenience."
-      : "बड़े अक्षरों का उपयोग करना और साफ निर्देश मांगना समझदारी है, कोई परेशानी नहीं।";
-  }
-
-  if (context.supportNeed === "hearing") {
-    actions.unshift(
-      state.language === "en" ? "Prefer written directions or ask someone to face you while speaking so instructions are easier to follow." : "लिखित निर्देश लें या किसी से सामने देखकर बोलने को कहें ताकि निर्देश समझना आसान हो।"
-    );
-  }
-
-  if (context.supportNeed === "mobility") {
-    actions.unshift(
-      state.language === "en" ? "Ask early about seating, ramp access, or a shorter waiting option if such support exists at the booth." : "यदि ऐसी सुविधा उपलब्ध हो तो पहले ही बैठने, रैंप या कम इंतजार वाले विकल्प के बारे में पूछें।"
-    );
-    reassurance = state.language === "en"
-      ? "Comfort and safety matter. Planning around movement is part of good preparation."
-      : "सुविधा और सुरक्षा महत्वपूर्ण हैं। चलने-फिरने के अनुसार योजना बनाना अच्छी तैयारी का हिस्सा है।";
-  }
-
-  if (context.supportNeed === "helper") {
-    actions.unshift(
-      state.language === "en" ? "A trusted family helper can keep documents organized and reduce stress before you leave home." : "कोई विश्वसनीय परिवार सहायक दस्तावेज व्यवस्थित रखने और घर से निकलने से पहले तनाव कम करने में मदद कर सकता है।"
-    );
-  }
-
-  if (context.voteSubmitted) {
-    reassurance = state.language === "en"
-      ? "You already completed the practice ballot, which means the final voting flow will feel more familiar."
-      : "आपने अभ्यास वाला मतपत्र पूरा कर लिया है, इसलिए अंतिम मतदान प्रक्रिया अब अधिक परिचित लगेगी।";
-  }
-
-  if (context.quizCorrectCount >= 2) {
-    summary += state.language === "en"
-      ? " You already understand the basics well, so now the focus is confidence and preparation."
-      : " आपको बुनियादी बातें अच्छी तरह समझ आ गई हैं, इसलिए अब ध्यान आत्मविश्वास और तैयारी पर है।";
-  }
-
-  if (context.question) {
-    summary += state.language === "en"
-      ? " Your own question has been included in the guidance so the advice stays personal and practical."
-      : " आपके अपने प्रश्न को भी इस मार्गदर्शन में शामिल किया गया है ताकि सलाह अधिक व्यक्तिगत और उपयोगी रहे।";
-  }
-
-  return {
-    summary,
-    actions: actions.slice(0, 4),
-    reassurance,
-    nextStep: nextStep,
-    whyThisHelp: state.language === "en"
-      ? `This advice is based on the older voter persona, the current step (${stepTitle}), your selected concern (${concernLabel}), and support need (${supportLabel}).`
-      : `यह सलाह वरिष्ठ मतदाता व्यक्तित्व, वर्तमान चरण (${stepTitle}), आपकी चुनी हुई चिंता (${concernLabel}) और सहायता की जरूरत (${supportLabel}) पर आधारित है।`,
-    source: "local",
-  };
-  */
-}
-
-function buildOfflineAssistantPreview(context) {
-  const stepTitle = t(steps[context.stepIndex].title);
-  const concernLabel = t(assistantConcerns.find((item) => item.id === context.concern).label);
-  const supportLabel = t(assistantSupportNeeds.find((item) => item.id === context.supportNeed).label);
-  const nextStep = context.stepIndex < steps.length - 1 ? t(steps[context.stepIndex + 1].title) : t(copy.faqTitle);
-
-  let summary = state.language === "en"
-    ? `This quick preview is focused on ${stepTitle}. Your current concern is ${concernLabel}, and the support need is ${supportLabel}.`
-    : `यह त्वरित प्रीव्यू ${stepTitle} पर केंद्रित है। आपकी चिंता ${concernLabel} है और सहायता की जरूरत ${supportLabel} है।`;
-
-  if (context.quizCorrectCount >= 2) {
-    summary += state.language === "en"
-      ? " You already know the basics, so the next step is calm preparation."
-      : " आपको बुनियादी बातें समझ आ गई हैं, अब ध्यान शांत तैयारी पर है।";
-  }
-
-  if (context.question) {
-    summary += state.language === "en"
-      ? " Your question is saved for the detailed guidance request."
-      : " आपका प्रश्न विस्तृत मार्गदर्शन अनुरोध के लिए शामिल है।";
-  }
-
-  const concernAction = {
-    registration: localized("Check your voter details early.", "मतदाता विवरण जल्दी जांचें।"),
-    documents: localized("Keep your ID papers together in one place.", "पहचान पत्र एक जगह रखें।"),
-    booth: localized("Confirm the polling booth before leaving home.", "घर से निकलने से पहले बूथ पता करें।"),
-    assistance: localized("Ask about senior support at the booth if needed.", "ज़रूरत हो तो वरिष्ठ सहायता के बारे में पूछें।"),
-    voting_process: localized("Use the step guide to understand the voting flow calmly.", "मतदान प्रक्रिया को शांति से समझने के लिए चरण गाइड देखें।"),
-    trusted_updates: localized("Trust only official election updates.", "सिर्फ आधिकारिक चुनाव जानकारी पर भरोसा करें।"),
-  };
-
-  const supportAction = {
-    none: localized("Use large text, contrast, and audio whenever it feels helpful.", "ज़रूरत लगे तो बड़े अक्षर, कॉन्ट्रास्ट और ऑडियो का उपयोग करें।"),
-    vision: localized("Keep glasses or a magnifier ready and ask for clear instructions.", "चश्मा या मैग्निफायर रखें और साफ़ निर्देश मांगें।"),
-    hearing: localized("Prefer written directions or face-to-face speaking support.", "लिखित निर्देश या सामने से बोलकर मदद लें।"),
-    mobility: localized("Plan seating, ramp access, and a comfortable travel time.", "बैठने, रैंप और आरामदायक समय की पहले योजना बनाएं।"),
-    helper: localized("A trusted helper can keep documents and travel plans organized.", "विश्वसनीय सहायक दस्तावेज़ और यात्रा को व्यवस्थित रख सकता है।"),
-  };
-
-  const actions = [
-    t(concernAction[context.concern]),
-    t(supportAction[context.supportNeed]),
-    t(copy.assistantPreviewAction),
-  ];
-
-  if (context.voteSubmitted) {
-    actions.push(
-      state.language === "en"
-        ? "Your practice vote is complete, so the final flow should feel more familiar."
-        : "आपने अभ्यास वोट पूरा कर लिया है, इसलिए अंतिम प्रक्रिया अधिक परिचित लगेगी।"
-    );
-  }
-
-  return {
-    summary,
-    actions,
-    reassurance: state.language === "en"
-      ? "This preview keeps things simple. Use Get Personal Guidance for full server advice."
-      : "यह प्रीव्यू बातों को सरल रखता है। पूरी सलाह के लिए Get Personal Guidance दबाएँ।",
-    nextStep,
-    whyThisHelp: state.language === "en"
-      ? `This quick preview uses the current step (${stepTitle}), concern (${concernLabel}), and support need (${supportLabel}) while keeping the secure server as the main source of detailed advice.`
-      : `यह त्वरित प्रीव्यू वर्तमान चरण (${stepTitle}), चिंता (${concernLabel}) और सहायता की जरूरत (${supportLabel}) के आधार पर बना है, जबकि विस्तृत सलाह के लिए सुरक्षित सर्वर मुख्य स्रोत है।`,
-    source: "local",
-  };
+function buildLocalAssistantPreview() {
+  return buildOfflineAssistantPreview({
+    context: buildAssistantPayload(),
+    language: state.language,
+    t,
+    steps,
+    assistantConcerns,
+    assistantSupportNeeds,
+    copy,
+    availableGoogleFeatures: state.availableGoogleFeatures,
+  });
 }
 
 function updateLocalAssistant() {
-  state.assistantResult = buildOfflineAssistantPreview(buildAssistantPayload());
+  state.assistantResult = buildLocalAssistantPreview();
   renderAssistant();
 }
 
@@ -758,6 +599,7 @@ async function loadAssistantAvailability() {
   if (!window.location.protocol.startsWith("http")) {
     state.assistantAvailability = "local";
     state.audioAvailability = "browser";
+    state.availableGoogleFeatures = [];
     renderAssistant();
     renderStatus();
     return;
@@ -769,11 +611,13 @@ async function loadAssistantAvailability() {
     const data = await response.json();
     const geminiStatus = data.google_services?.gemini || {};
     const ttsStatus = data.google_services?.cloud_text_to_speech || {};
+    state.availableGoogleFeatures = Array.isArray(data.google_features) ? data.google_features : [];
     state.assistantAvailability = geminiStatus.available ? "gemini" : "fallback";
     state.audioAvailability = ttsStatus.available ? "google" : "browser";
   } catch {
     state.assistantAvailability = "local";
     state.audioAvailability = "browser";
+    state.availableGoogleFeatures = [];
   }
   renderAssistant();
   renderStatus();
@@ -817,13 +661,17 @@ async function requestAssistantGuidance() {
       actions: data.actions,
       reassurance: data.reassurance,
       nextStep: data.next_step,
+      verificationTip: data.verification_tip,
+      followUpPrompt: data.follow_up_prompt,
       whyThisHelp: data.why_this_help,
+      googleFeatures: Array.isArray(data.google_features) ? data.google_features : [],
       source: data.source,
     };
+    state.availableGoogleFeatures = Array.isArray(data.google_features) ? data.google_features : state.availableGoogleFeatures;
     state.assistantAvailability = data.source === "gemini" ? "gemini" : "fallback";
   } catch {
     state.assistantAvailability = "local";
-    state.assistantResult = buildOfflineAssistantPreview(buildAssistantPayload());
+    state.assistantResult = buildLocalAssistantPreview();
   } finally {
     state.assistantLoading = false;
     renderAssistant();
@@ -963,6 +811,13 @@ function stopSpeaking(shouldAnnounce = true) {
   }
 }
 
+function currentGoogleFeatureLabels(featureIds) {
+  return featureIds
+    .map((featureId) => googleFeatureLabels[featureId])
+    .filter(Boolean)
+    .map((label) => t(label));
+}
+
 function renderStatus() {
   elements.currentStepBadge.textContent = `${t(copy.stepCounter)} ${state.currentStepIndex + 1} ${t(copy.of)} ${steps.length}`;
   elements.voiceStatusBadge.textContent = currentVoiceStatusLabel();
@@ -1006,6 +861,9 @@ function renderStaticText() {
   elements.assistantActionsTitle.textContent = t(copy.assistantActionsTitle);
   elements.assistantReassuranceLabel.textContent = t(copy.assistantReassuranceLabel);
   elements.assistantNextStepLabel.textContent = t(copy.assistantNextStepLabel);
+  elements.assistantVerificationLabel.textContent = t(copy.assistantVerificationLabel);
+  elements.assistantFollowUpLabel.textContent = t(copy.assistantFollowUpLabel);
+  elements.assistantGoogleFeaturesTitle.textContent = t(copy.assistantGoogleFeaturesTitle);
 
   elements.guideEyebrow.textContent = t(copy.guideEyebrow);
   elements.guideTitle.textContent = t(copy.guideTitle);
@@ -1052,7 +910,7 @@ function renderStaticText() {
 
 function renderAssistant() {
   if (!state.assistantResult) {
-    state.assistantResult = buildOfflineAssistantPreview(buildAssistantPayload());
+    state.assistantResult = buildLocalAssistantPreview();
   }
 
   renderSelectOptions(elements.assistantConcern, assistantConcerns, state.assistantConcern);
@@ -1069,6 +927,15 @@ function renderAssistant() {
   renderTextList(elements.assistantActions, state.assistantResult.actions);
   elements.assistantReassurance.textContent = state.assistantResult.reassurance;
   elements.assistantNextStep.textContent = state.assistantResult.nextStep;
+  elements.assistantVerificationTip.textContent = state.assistantResult.verificationTip || "";
+  elements.assistantFollowUpPrompt.textContent = state.assistantResult.followUpPrompt || "";
+  const assistantGoogleFeatures = state.assistantResult.googleFeatures?.length
+    ? state.assistantResult.googleFeatures
+    : state.availableGoogleFeatures;
+  const googleFeatureLabelsForResponse = currentGoogleFeatureLabels(assistantGoogleFeatures);
+  renderTextList(elements.assistantGoogleFeatures, googleFeatureLabelsForResponse);
+  elements.assistantGoogleFeaturesTitle.hidden = googleFeatureLabelsForResponse.length === 0;
+  elements.assistantGoogleFeatures.hidden = googleFeatureLabelsForResponse.length === 0;
   elements.assistantWhyThisHelp.textContent = state.assistantResult.whyThisHelp;
 }
 
@@ -1248,8 +1115,8 @@ function getHeroSpeech() {
 }
 
 function getAssistantSpeech() {
-  const result = state.assistantResult || buildOfflineAssistantPreview(buildAssistantPayload());
-  return `${t(copy.assistantTitle)}. ${result.summary}. ${result.actions.join(" ")} ${result.reassurance}. ${t(copy.assistantNextStepLabel)} ${result.nextStep}.`;
+  const result = state.assistantResult || buildLocalAssistantPreview();
+  return `${t(copy.assistantTitle)}. ${result.summary}. ${result.actions.join(" ")} ${result.reassurance}. ${t(copy.assistantNextStepLabel)} ${result.nextStep}. ${t(copy.assistantVerificationLabel)} ${result.verificationTip}.`;
 }
 
 function getGuideSpeech() {
@@ -1469,3 +1336,4 @@ window.addEventListener("beforeunload", () => {
 renderAll();
 updateLocalAssistant();
 void loadAssistantAvailability();
+

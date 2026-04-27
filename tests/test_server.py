@@ -48,12 +48,11 @@ def test_public_config_uses_real_service_availability(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     monkeypatch.setattr(
-        "server.main.gemini_assistant.gemini_service_status",
-        lambda: {"available": False, "reason": "missing_api_key"},
-    )
-    monkeypatch.setattr(
-        "server.main.google_audio.google_tts_service_status",
-        lambda: {"available": False, "reason": "missing_service_account_json"},
+        "server.main.google_services.collect_google_service_statuses",
+        lambda: {
+            "gemini": {"available": False, "reason": "missing_api_key"},
+            "cloud_text_to_speech": {"available": False, "reason": "missing_service_account_json"},
+        },
     )
 
     response = client.get("/api/config/public")
@@ -64,6 +63,7 @@ def test_public_config_uses_real_service_availability(
     assert data["audio"] == "browser"
     assert data["google_services"]["gemini"]["reason"] == "missing_api_key"
     assert data["google_services"]["cloud_text_to_speech"]["reason"] == "missing_service_account_json"
+    assert data["google_features"] == []
 
 
 def test_assistant_guide_route_returns_structured_fallback(client: TestClient) -> None:
@@ -88,6 +88,9 @@ def test_assistant_guide_route_returns_structured_fallback(client: TestClient) -
     assert data["source"] in ("gemini", "fallback")
     assert isinstance(data["actions"], list)
     assert len(data["actions"]) >= 3
+    assert isinstance(data["verification_tip"], str)
+    assert isinstance(data["follow_up_prompt"], str)
+    assert isinstance(data["google_features"], list)
     assert "older voter" in data["why_this_help"].lower()
 
 
@@ -197,6 +200,15 @@ def test_index_route_serves_html(client: TestClient) -> None:
     assert response.status_code == 200
     assert "text/html" in response.headers["content-type"]
     assert "Election Process Explained" in response.text
+    assert "assistantVerificationTip" in response.text
+
+
+def test_assistant_preview_asset_is_served(client: TestClient) -> None:
+    response = client.get("/js/assistantPreview.js")
+
+    assert response.status_code == 200
+    assert "javascript" in response.headers["content-type"]
+    assert "ElectionGuideAssistantPreview" in response.text
 
 
 def test_index_route_includes_security_headers(client: TestClient) -> None:
@@ -205,3 +217,98 @@ def test_index_route_includes_security_headers(client: TestClient) -> None:
     assert response.status_code == 200
     assert response.headers["x-frame-options"] == "DENY"
     assert "frame-ancestors 'none'" in response.headers["content-security-policy"]
+
+
+# ---------------------------------------------------------------------------
+# New tests added for code-quality-google-service-improvements
+# ---------------------------------------------------------------------------
+
+def test_parse_labeled_lines_is_total_for_arbitrary_input() -> None:
+    """_parse_labeled_lines must return a dict and never raise for any input."""
+    from server.gemini_assistant import _parse_labeled_lines
+
+    tricky_inputs = [
+        "",
+        "   ",
+        "```json\nSummary: hello\n```",
+        "SUMMARY: Hello\nREASSURANCE: World",
+        "no labels here at all",
+        "Summary:",
+        "Summary: \nReassurance: ",
+        "\U0001f389 unicode \U0001f5f3\ufe0f",
+        "Summary: test\nExtra: ignored\nReassurance: calm",
+        "```\nSUMMARY: upper\nREASSURANCE: upper too\n```",
+        "VerificationTip: check this\nFollowUpPrompt: next?",
+    ]
+    for s in tricky_inputs:
+        result = _parse_labeled_lines(s)
+        assert isinstance(result, dict), f"Expected dict for input {s!r}, got {type(result)}"
+
+
+def test_gemini_enhance_guidance_falls_back_on_value_error(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """enhance_guidance must return (base_result, 'fallback') when generate_content raises ValueError."""
+    import sys
+    import types
+
+    from server import gemini_assistant
+    from server.logic import GuideResult
+
+    base = GuideResult(
+        summary="base summary",
+        actions=["action 1", "action 2", "action 3"],
+        reassurance="base reassurance",
+        next_step="next",
+        verification_tip="tip",
+        follow_up_prompt="prompt",
+        why_this_help="why",
+    )
+
+    monkeypatch.setenv("GEMINI_API_KEY", "fake-key")
+    gemini_assistant._gemini_import_error.cache_clear()
+
+    fake_genai = types.ModuleType("google.generativeai")
+
+    class _FakeModel:
+        def generate_content(self, *args: object, **kwargs: object) -> None:
+            raise ValueError("bad response")
+
+    fake_genai.configure = lambda **_: None  # type: ignore[attr-defined]
+    fake_genai.GenerativeModel = lambda *_: _FakeModel()  # type: ignore[attr-defined]
+
+    monkeypatch.setitem(sys.modules, "google.generativeai", fake_genai)
+
+    result, source = gemini_assistant.enhance_guidance(
+        language="en",
+        step_title="Voting Day",
+        concern_label="Documents",
+        support_label="None",
+        question=None,
+        base_result=base,
+    )
+
+    assert source == "fallback"
+    assert result is base
+
+
+def test_synthesize_speech_returns_fallback_on_tts_exception(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """synthesize_speech must return (None, 'fallback') when the TTS client raises."""
+    from server import google_audio
+    from server.google_audio import REASON_READY
+
+    class _FakeClient:
+        def synthesize_speech(self, **_: object) -> None:
+            raise RuntimeError("network error")
+
+    monkeypatch.setattr(
+        "server.google_audio._tts_client_status",
+        lambda: (_FakeClient(), REASON_READY),
+    )
+
+    audio, provider = google_audio.synthesize_speech(text="hello", language="en")
+
+    assert audio is None
+    assert provider == "fallback"
