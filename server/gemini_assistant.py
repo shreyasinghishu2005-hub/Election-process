@@ -68,9 +68,14 @@ def enhance_guidance(
     if not status["available"]:
         return base_result, "fallback"
 
+    # Resolve DeadlineExceeded once before the try block to avoid scoping issues
+    try:
+        from google.api_core.exceptions import DeadlineExceeded as _DeadlineExceeded  # type: ignore[import-untyped]
+    except Exception:
+        _DeadlineExceeded = Exception  # type: ignore[assignment,misc]
+
     try:
         import google.generativeai as genai  # type: ignore[import-untyped]
-        from google.api_core.exceptions import DeadlineExceeded  # type: ignore[import-untyped]
 
         genai.configure(api_key=config.gemini_api_key())
         model = genai.GenerativeModel("gemini-1.5-flash")
@@ -113,7 +118,7 @@ def enhance_guidance(
             verification_tip=parsed.get("verification_tip", base_result.verification_tip),
             follow_up_prompt=parsed.get("follow_up_prompt", base_result.follow_up_prompt),
         ), "gemini"
-    except (ValueError, AttributeError, RuntimeError, DeadlineExceeded, TimeoutError) as exc:
+    except (ValueError, AttributeError, RuntimeError, _DeadlineExceeded, TimeoutError) as exc:
         logger.warning("Gemini enhancement fell back to deterministic guidance: %s", exc)
         return base_result, "fallback"
     except Exception as exc:  # pragma: no cover - third-party failure path
