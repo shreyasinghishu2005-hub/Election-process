@@ -96,12 +96,12 @@ Targeted improvements to the `election-process-guide` FastAPI backend across two
   - Ensure all tests pass, ask the user if questions arise.
   - _Requirements: 3.1, 3.2, 3.6, 10.1, 10.2_
 
-- [ ] 10. Commit and push to GitHub
-  - [-] 10.1 Stage all changes with `git add -A` from `election-process-guide/`
+- [x] 10. Commit and push to GitHub
+  - [x] 10.1 Stage all changes with `git add -A` from `election-process-guide/`
     - _Requirements: 9.1_
-  - [ ] 10.2 Commit with message: `"improve: code quality and Google service integration (type annotations, logging, timeout, parser robustness, TTS observability, named constants, test coverage)"`
+  - [x] 10.2 Commit with message: `"improve: code quality and Google service integration (type annotations, logging, timeout, parser robustness, TTS observability, named constants, test coverage)"`
     - _Requirements: 9.2_
-  - [ ] 10.3 Push to remote with `git push` from `election-process-guide/`
+  - [x] 10.3 Push to remote with `git push` from `election-process-guide/`
     - _Requirements: 9.3_
 
 ## Notes
